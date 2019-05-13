@@ -82,8 +82,8 @@
       <ol>
         <li>添加引用 Microsoft.AspNetCore.Hosting.WindowsServices</li>
         <li>将启动语句由.Run()修改为.RunAsService()</li>
-        <li>使用sc命令建立一个windows服务:(下面MyWebApiServer是服务名字,binPath是程序路径,注意=后面有空格,DisplayName是服务显示名字)</li>
-        <li>&emsp;sc create MyWebApiServer binPath= "dotnet D:\MyWebApi\bin\Debug\netcoreapp2.1/MyWebApi.dll" DisplayName= MyWebApiServerAspNetCore</li>
+        <li>使用sc命令建立一个windows服务:(下面MyWebApiServer是服务名字,binPath是程序路径,注意=后面有空格,另外加一个参数s,启动据此判断是从控制台启动还是服务启动.DisplayName是服务显示名字)</li>
+        <li>&emsp;sc create MyWebApiServer binPath= "dotnet D:\MyWebApi\bin\Debug\netcoreapp2.1/MyWebApi.dll s" DisplayName= MyWebApiServerAspNetCore</li>
         <li>如果建立成功了,那么打开services.msc 就能找到这个服务,然后点击启动服务.成功后,可测试调用API.</li>
         <li>也能用sc命令启动服务: sc start MyWebApiServer</li>
       </ol>

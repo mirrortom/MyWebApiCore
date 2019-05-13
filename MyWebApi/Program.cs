@@ -35,8 +35,8 @@ namespace MyWebApi
                 .AddJsonFile("kestrel.json")
                 .Build();
 
-            // 开机运行
-            new WebHostBuilder()
+            // 开机运行,可选择其中一种方式运行,服务或者控制台
+            IWebHost webhost = new WebHostBuilder()
                 .ConfigureServices(serverCfg)
                 .UseConfiguration(kestrelCfg)
                 .UseKestrel()
@@ -45,9 +45,16 @@ namespace MyWebApi
                     .UseDeveloperExceptionPage()
                     .Use(ApiHandler.UrlHandler)
                 )
-                .Build()
-                .Run();
-                //.RunAsService();
+                .Build();
+            if (args.Length > 0 && args[0] == "s")
+            {
+                // 以windows服务方式运行
+                webhost.RunAsService();
+            }
+            else
+            {
+                webhost.Run();
+            }
         }
     }
 }
