@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -79,6 +81,27 @@ namespace MyWebApi
         }
 
         /// <summary>
+        /// 自定义处理异常中间件:UseExceptionHandler()需要一个ExceptionHandlerOptions类型的参数.
+        /// 此方法返回这个参数.此方法主要作用是当请求处理发生异常时,返回简要异常信息.
+        /// </summary>
+        /// <returns></returns>
+        public static ExceptionHandlerOptions CustomExceptionHandlerOptions()
+        {
+            async Task handler(HttpContext context)
+            {
+                // 从上下文对象中获取发生的异常对象.
+                IExceptionHandlerPathFeature exh = context.Features.Get<IExceptionHandlerPathFeature>();
+                // 返回异常信息
+                await context.Response.WriteAsync(exh.Error.Message);
+            }
+            //
+            return new ExceptionHandlerOptions()
+            {
+                ExceptionHandler = handler
+            };
+        }
+
+        /// <summary>
         /// 接口权限判断
         /// </summary>
         /// <param name="context"></param>
@@ -87,8 +110,12 @@ namespace MyWebApi
         /// <returns></returns>
         private static bool PowerCheck(HttpContext context, string clsName, string method)
         {
+            //string token = context.Request.Headers["Auth"].ToString();
+            //if (string.IsNullOrWhiteSpace(token))
+                //return false;
             return true;
         }
+
         /// <summary>
         /// 方法特性检查.是否贴有作为接口的三个特性
         /// 并非必要,只是为了加一个功能,让贴了特性的方法才能被访问.没贴的当内部方法

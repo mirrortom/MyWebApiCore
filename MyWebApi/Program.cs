@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.WindowsServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
 namespace MyWebApi
 {
@@ -39,11 +40,20 @@ namespace MyWebApi
                 .UseConfiguration(kestrelCfg)
                 .UseKestrel()
                 .Configure(app => app
-                    .UseCors(cors)// 跨域
-                    .UseDeveloperExceptionPage()// 能在请求页面上显示异常信息
-                    .Use(ApiHandler.UrlHandler)// 自定义路由中间件
+                    // 跨域
+                    .UseCors(cors)
+
+                    // 能在请求页面上显示异常信息,这是系统提供的异常处理,信息很详细,可以用于开发环境调错.
+                    .UseDeveloperExceptionPage()
+
+                    // 自定义异常处理返回中间件
+                    //.UseExceptionHandler(ApiHandler.CustomExceptionHandlerOptions())
+
+                    // 自定义路由中间件
+                    .Use(ApiHandler.UrlHandler)
                 )
                 .Build();
+            //
             if (args.Length > 0 && args[0] == "s")
             {
                 // 以windows服务方式运行
