@@ -7,12 +7,23 @@ using Microsoft.AspNetCore.Http.Extensions;
 
 namespace MyWebApi
 {
+    class testEntity
+    {
+        public string name;
+        public string title;
+    }
     class DemoApi : ApiBase
     {
         [HTTPGET]
         public async Task getpara()
         {
             dynamic query = this.ParaGET();
+            await this.Json(query);
+        }
+        [HTTPGET]
+        public async Task getParaType()
+        {
+            dynamic query = this.ParaGET<testEntity>();
             await this.Json(query);
         }
         [HTTPPOST]
@@ -22,10 +33,28 @@ namespace MyWebApi
             await this.Json(query);
         }
         [HTTPPOST]
+        public async Task formParaType()
+        {
+            dynamic query = this.ParaForm<testEntity>();
+            await this.Json(query);
+        }
+        [HTTPPOST]
         public async Task parajson()
         {
             dynamic para = this.ParaStream();
             await this.Json(para);
+        }
+        [HTTPGET]
+        [AUTH]
+        public async Task token()
+        {
+            await this.Html("<p>需要权限,贴上[AUTH]特性.实现ApiHandler.PowerCheck()方法.</p>");
+        }
+        [HTTPPOST]
+        public async Task throwcatch()
+        {
+            throw new Exception("自定义异常处理方法,在ApiHandler.CustomExceptionHandlerOptions()方法里实现.这是一个中间件,在Program.cs启动方法里要开起它.");
+            await this.Json(new { });
         }
         [HTTPPOST]
         public async Task getfile()

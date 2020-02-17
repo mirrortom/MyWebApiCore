@@ -70,6 +70,18 @@ namespace MyWebApi
             return obj;
         }
         /// <summary>
+        /// 获取GET参数,并且转为指定类型
+        /// 无参数时返回T的实例
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        protected virtual T ParaGET<T>()
+        {
+            dynamic obj = ParaGET();
+            string json = JsonConvert.SerializeObject(obj);
+            return JsonConvert.DeserializeObject<T>(json);
+        }
+        /// <summary>
         /// 获取form参数,并且转为动态类型
         /// 无参数时返回空对象
         /// </summary>
@@ -86,6 +98,18 @@ namespace MyWebApi
                     ((IDictionary<string, object>)obj).Add(key, values.FirstOrDefault());
             }
             return obj;
+        }
+        /// <summary>
+        /// 获取form参数,并且转为指定类型
+        /// 无参数时返回T的实例
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        protected virtual T ParaForm<T>()
+        {
+            dynamic obj = ParaForm();
+            string json = JsonConvert.SerializeObject(obj);
+            return JsonConvert.DeserializeObject<T>(json);
         }
         /// <summary>
         /// 从InputStream中获取参数.然后返回UTF8编码的字符串.如果是个JSON字符串,可再做转换

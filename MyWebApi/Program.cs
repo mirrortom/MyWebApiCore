@@ -44,10 +44,10 @@ namespace MyWebApi
                     .UseCors(cors)
 
                     // 能在请求页面上显示异常信息,这是系统提供的异常处理,信息很详细,可以用于开发环境调错.
-                    .UseDeveloperExceptionPage()
+                    //.UseDeveloperExceptionPage()
 
                     // 自定义异常处理返回中间件
-                    //.UseExceptionHandler(ApiHandler.CustomExceptionHandlerOptions())
+                    .UseExceptionHandler(ApiHandler.CustomExceptionHandlerOptions())
 
                     // 自定义路由中间件
                     .Use(ApiHandler.UrlHandler)

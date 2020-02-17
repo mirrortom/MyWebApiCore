@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -27,7 +28,7 @@ namespace MyWebApi
 
                 // 如果路径不合规则,引发异常.合法路径 /api/user/info , /user/name
                 if (urlparts.Length < 3)
-                    throw new Exception("无效的API请求地址");
+                    throw new Exception($"url is error! url: {urlparts}");
 
                 // 类名和方法名:类名全称是- 程序集名.[命名空间].类名Api(约定后缀)
                 // 命名空间: url拆分后,0位是命名空间,如果只有两段,则没有命名空间(只有当前程序集的默认命名空间)
@@ -50,7 +51,7 @@ namespace MyWebApi
 
                 // 未找到该类,引发异常
                 if (webapiT == null)
-                    throw new Exception($"无法找到名为{apiClass}的定义");
+                    throw new Exception($"not exists Class: {apiClass}");
 
                 // 建立实例,再传入HttpContext对象
                 // 继承约定: 需要继承ApiBase这个基类
@@ -62,16 +63,16 @@ namespace MyWebApi
 
                 // 未找到方法,引发异常
                 if (webapiMethod == null)
-                    throw new Exception($"无法找到名为{apiClass}.{apiMethod}的方法定义");
+                    throw new Exception($"not exists Method: {apiClass}.{apiMethod}");
 
                 // 检查方法是否贴有特性HTTPPOST/HTTPGET/HTTPALL. 例如[HTTPPOST],只响应POST请求.
                 // 特性约定:做为API的方法需要贴上三个特性中的一个
-                if (!AttributeCheck(context, webapiMethod, workapi))
-                    throw new Exception($"无法响应请求.方法无必要特性!方法定义{apiClass}.{apiMethod}");
+                if (!AttributeCheck(context, webapiMethod))
+                    throw new Exception($"not exists Api Attribute. Method: {apiClass}.{apiMethod}");
 
-                // 如果不需要权限,注释掉.
-                if (!PowerCheck(context, apiClass, apiMethod))
-                    throw new Exception($"Access Denied!方法定义{apiClass}.{apiMethod}");
+                // 检查类或者方法上是否贴有AUTH特性,有则执行权限判断
+                if (!PowerCheck(context, webapiMethod, webapiT))
+                    throw new Exception($"Access Denied! Method: {apiClass}.{apiMethod}");
 
                 // 执行方法
                 Task task = webapiMethod.Invoke(workapi, null) as Task;
@@ -92,7 +93,11 @@ namespace MyWebApi
                 // 从上下文对象中获取发生的异常对象.
                 IExceptionHandlerPathFeature exh = context.Features.Get<IExceptionHandlerPathFeature>();
                 // 返回异常信息
-                await context.Response.WriteAsync(exh.Error.Message);
+                context.Response.ContentType = "application/json;charset=utf-8";
+                context.Response.StatusCode = 200;
+                string errJsonStr = JsonConvert.SerializeObject(
+                    new { errmsg = exh.Error.Message, errcode = 500 });
+                await context.Response.WriteAsync(errJsonStr);
             }
             //
             return new ExceptionHandlerOptions()
@@ -102,17 +107,20 @@ namespace MyWebApi
         }
 
         /// <summary>
-        /// 接口权限判断
+        /// 接口权限判断.当webapi类或其方法贴有AUTH特性时.
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="clsName"></param>
-        /// <param name="method"></param>
+        /// <param name="webapiMethod"></param>
+        /// <param name="webapiClass"></param>
         /// <returns></returns>
-        private static bool PowerCheck(HttpContext context, string clsName, string method)
+        private static bool PowerCheck(HttpContext context, MethodInfo webapiMethod, Type webapiClass)
         {
             //string token = context.Request.Headers["Auth"].ToString();
-            //if (string.IsNullOrWhiteSpace(token))
-                //return false;
+            if (Attribute.IsDefined(webapiClass, typeof(AUTHAttribute)) ||
+                Attribute.IsDefined(webapiMethod, typeof(AUTHAttribute)))
+            {
+                return true;
+            }
             return true;
         }
 
@@ -121,9 +129,8 @@ namespace MyWebApi
         /// 并非必要,只是为了加一个功能,让贴了特性的方法才能被访问.没贴的当内部方法
         /// </summary>
         /// <param name="webapiMethod">要检查的接口方法</param>
-        /// <param name="workapi">所在接口实例</param>
         /// <returns></returns>
-        private static bool AttributeCheck(HttpContext context, MethodInfo webapiMethod, ApiBase workapi)
+        private static bool AttributeCheck(HttpContext context, MethodInfo webapiMethod)
         {
             string httpMethod = context.Request.Method.ToUpper();
             if (httpMethod == "POST" && Attribute.IsDefined(webapiMethod, typeof(HTTPPOSTAttribute)))
@@ -141,9 +148,12 @@ namespace MyWebApi
             else
             {
                 return false;
-
             }
         }
+    }
+    class AUTHAttribute : Attribute
+    {
+
     }
     class HTTPPOSTAttribute : Attribute
     {
