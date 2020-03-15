@@ -129,13 +129,14 @@ namespace MyWebApi
         //#region response返回各种结果形式
 
         /// <summary>
-        /// 返回JSON格式数据
+        /// 返回JSON格式数据.obj如果是字符串,则视为json格式字符串直接返回.
         /// </summary>
         /// <param name="obj"></param>
         protected async Task Json(object obj)
         {
             this.Response.ContentType = "application/json;charset=utf-8";
-            string jsonstr = JsonConvert.SerializeObject(obj);
+            string jsonstr = obj.GetType() == typeof(string)
+                ? obj.ToString() : JsonConvert.SerializeObject(obj);
             await this.Response.WriteAsync(jsonstr);
         }
         /// <summary>
