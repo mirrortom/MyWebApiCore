@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.WindowsServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using System.Diagnostics;
+using System.IO;
 
 namespace MyWebApi
 {
@@ -33,6 +35,20 @@ namespace MyWebApi
                 .AddJsonFile("kestrel.json")
                 .Build();
 
+            // 默认文档配置项
+            DefaultFilesOptions defaultFileCfg = new DefaultFilesOptions();
+            defaultFileCfg.DefaultFileNames.Add("readme.html");
+
+            // 静态文件配置项
+            StaticFileOptions staticFilesCfg = new StaticFileOptions()
+            {
+                // 这里配置物理目录
+                FileProvider = new PhysicalFileProvider(
+            Path.Combine(Directory.GetCurrentDirectory(), "staticdir1")),
+                // 配置对应虚拟目录,就是url请求上的目录
+                RequestPath = "/sd1"
+            };
+
             // 开机运行,可选择其中一种方式运行,服务或者控制台
             // 实例化主机,载入配置项
             IWebHost webhost = new WebHostBuilder()
@@ -40,6 +56,14 @@ namespace MyWebApi
                 .UseConfiguration(kestrelCfg)
                 .UseKestrel()
                 .Configure(app => app
+
+                    // 默认静态文件(注意调用顺序,要在"静态文件UseStaticFiles"之前调用)
+                    .UseDefaultFiles(defaultFileCfg)
+
+                    // 静态文件(注意调用顺序,要在"自定义路由中间件"之前调用)
+                    .UseStaticFiles()
+                    .UseStaticFiles(staticFilesCfg)
+
                     // 跨域
                     .UseCors(cors)
 
@@ -51,6 +75,7 @@ namespace MyWebApi
 
                     // 自定义路由中间件
                     .Use(ApiHandler.UrlHandler)
+
                 )
                 .Build();
             //
