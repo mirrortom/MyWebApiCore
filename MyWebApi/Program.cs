@@ -27,7 +27,7 @@ namespace MyWebApi
                 cfg.AllowAnyHeader();
                 cfg.AllowAnyMethod();
                 cfg.AllowAnyOrigin();
-                cfg.AllowCredentials();
+                //cfg.AllowCredentials();
             }
 
             // kestrel服务器配置文件载入
@@ -73,7 +73,7 @@ namespace MyWebApi
                     // 自定义异常处理返回中间件
                     .UseExceptionHandler(ApiHandler.CustomExceptionHandlerOptions())
 
-                    // 自定义路由中间件
+                    // 自定义路由中间件.这个中间件安排在最后,所以没有调用next().
                     .Use(ApiHandler.UrlHandler)
 
                 )
