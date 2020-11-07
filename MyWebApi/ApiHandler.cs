@@ -71,7 +71,7 @@ namespace MyWebApi
                     throw new Exception($"not exists Api Attribute. Method: {apiClass}.{apiMethod}");
 
                 // 检查类或者方法上是否贴有AUTH特性,有则执行权限判断
-                if (!PowerCheck(context, webapiMethod, webapiT))
+                if (!PowerCheck(context, webapiMethod, webapiT,workapi))
                     throw new Exception($"Access Denied! Method: {apiClass}.{apiMethod}");
 
                 // 执行方法
@@ -113,12 +113,14 @@ namespace MyWebApi
         /// <param name="webapiMethod"></param>
         /// <param name="webapiClass"></param>
         /// <returns></returns>
-        private static bool PowerCheck(HttpContext context, MethodInfo webapiMethod, Type webapiClass)
+        private static bool PowerCheck(HttpContext context, MethodInfo webapiMethod, Type webapiClass, ApiBase workapi)
         {
-            //string token = context.Request.Headers["Auth"].ToString();
             if (Attribute.IsDefined(webapiClass, typeof(AUTHAttribute)) ||
                 Attribute.IsDefined(webapiMethod, typeof(AUTHAttribute)))
             {
+                // 取得token
+                // string token = context.Request.Headers["Auth"].ToString();
+                // 判断解析token,设置登录者信息
                 return true;
             }
             return true;

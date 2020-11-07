@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,16 +10,14 @@ using System.Web;
 
 namespace MyWebApi
 {
-    /*
-      * 本类提供了请求上下文对象和一些便利方法处理参数和返回值
-      * 用来提供数据的接口类(类似webapi的Controller),需要继承这个类.
-      */
     /// <summary>
     /// webapi接口类基类
+    /// 本类提供了请求上下文对象和一些便利方法处理参数和返回值
+    /// 用来提供数据的接口类(类似webapi的Controller),需要继承这个类.
     /// </summary>
     internal class ApiBase
     {
-        //#region 请求上下文对象及其它工具属性
+        #region 请求上下文对象及其它工具属性
 
         /// <summary>
         /// http请求上下文对象传入,此方法由handler调用
@@ -28,6 +28,7 @@ namespace MyWebApi
             if (this.HttpContext == null)
                 this.HttpContext = context;
         }
+
         /// <summary>
         /// 获取有关单个 HTTP 请求的 HTTP 特定的信息。
         /// </summary>
@@ -47,9 +48,10 @@ namespace MyWebApi
             get { return this.HttpContext.Response; }
         }
 
-        //#endregion
 
-        //#region 便利方法,将请求参数转为对象
+        #endregion
+
+        #region 便利方法,将请求参数转为对象
 
         /// <summary>
         /// 获取GET参数,并且转为动态类型
@@ -68,6 +70,24 @@ namespace MyWebApi
                     ((IDictionary<string, object>)obj).Add(key, values.FirstOrDefault());
             }
             return obj;
+        }
+        /// <summary>
+        /// 获取GET参数,并且转为字典类型
+        /// 无参数时返回空字典
+        /// </summary>
+        /// <returns></returns>
+        protected virtual Dictionary<string, object> ParaDictGET()
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            foreach (string key in this.Request.Query.Keys)
+            {
+                var values = this.Request.Query[key];
+                if (values.Count > 1)
+                    dict.Add(key, values);
+                else
+                    dict.Add(key, values.FirstOrDefault());
+            }
+            return dict;
         }
         /// <summary>
         /// 获取GET参数,并且转为指定类型
@@ -98,6 +118,24 @@ namespace MyWebApi
                     ((IDictionary<string, object>)obj).Add(key, values.FirstOrDefault());
             }
             return obj;
+        }
+        /// <summary>
+        /// 获取Form参数,并且转为字典类型
+        /// 无参数时返回空字典
+        /// </summary>
+        /// <returns></returns>
+        protected virtual Dictionary<string, object> ParaDictForm()
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            foreach (string key in this.Request.Form.Keys)
+            {
+                var values = this.Request.Form[key];
+                if (values.Count > 1)
+                    dict.Add(key, values);
+                else
+                    dict.Add(key, values.FirstOrDefault());
+            }
+            return dict;
         }
         /// <summary>
         /// 获取form参数,并且转为指定类型
@@ -179,6 +217,6 @@ namespace MyWebApi
             this.Response.Headers.Add("Content-disposition", $"attachment;filename={HttpUtility.UrlEncode(fileDownloadName)}");
             await this.Response.SendFileAsync(fileName);
         }
-        //#endregion
+        #endregion
     }
 }
