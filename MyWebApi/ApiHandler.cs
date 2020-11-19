@@ -160,10 +160,14 @@ namespace MyWebApi
         /// 接口功能描述
         /// </summary>
         public string Desc { get; set; }
+        /// <summary>
+        /// 接口id(为每一个接口分配一个整数ID,用于权限判断)
+        /// </summary>
+        public int Id { get; set; }
     }
     class AUTHAttribute : WebApiBaseAttribute
     {
-
+        
     }
     class HTTPPOSTAttribute : WebApiBaseAttribute
     {
