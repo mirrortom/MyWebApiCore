@@ -41,7 +41,7 @@ namespace MyWebApi
         [HTTPPOST]
         public async Task parajson()
         {
-            dynamic para = this.ParaStream();
+            dynamic para = await this.ParaStream();
             await this.Json(para);
         }
         [HTTPGET]
@@ -50,7 +50,7 @@ namespace MyWebApi
         {
             await this.Html("<p>需要权限,贴上[AUTH]特性.实现ApiHandler.PowerCheck()方法.</p>");
         }
-        [HTTPPOST]
+        [HTTPGET]
         public async Task throwcatch()
         {
             throw new Exception("自定义异常处理方法,在ApiHandler.CustomExceptionHandlerOptions()方法里实现.这是一个中间件,在Program.cs启动方法里要开起它.");
@@ -59,7 +59,8 @@ namespace MyWebApi
         [HTTPPOST]
         public async Task getfile()
         {
-            await this.File("readme.html", "application/octet-stream", "说明readme.html");
+            string file = AppContext.BaseDirectory+ "/wwwroot/readme.html";
+            await this.File(file, "application/octet-stream", "说明readme.html");
         }
         [HTTPPOST]
         public async Task uploadfile()

@@ -88,7 +88,7 @@ namespace MyWebApi
         /// <returns></returns>
         public static ExceptionHandlerOptions CustomExceptionHandlerOptions()
         {
-            async Task handler(HttpContext context)
+            static async Task handler(HttpContext context)
             {
                 // 从上下文对象中获取发生的异常对象.
                 IExceptionHandlerPathFeature exh = context.Features.Get<IExceptionHandlerPathFeature>();
@@ -143,10 +143,6 @@ namespace MyWebApi
             {
                 return true;
             }
-            else if (Attribute.IsDefined(webapiMethod, typeof(HTTPALLAttribute)))
-            {
-                return true;
-            }
             else
             {
                 return false;
@@ -174,10 +170,6 @@ namespace MyWebApi
 
     }
     class HTTPGETAttribute : WebApiBaseAttribute
-    {
-
-    }
-    class HTTPALLAttribute : WebApiBaseAttribute
     {
 
     }

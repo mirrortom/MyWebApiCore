@@ -152,14 +152,16 @@ namespace MyWebApi
         /// <summary>
         /// 从InputStream中获取参数.然后返回UTF8编码的字符串.如果是个JSON字符串,可再做转换
         /// 如果get,form都没参数,可尝试这个方法获取.例如Content-Type: application/json类型的参数
+        /// netcore3.0后默认禁用了AllowSynchronousIO,因此用了异步方式
         /// 没有取到时返回null
         /// </summary>
-        protected virtual string ParaStream()
+        protected virtual async Task<string> ParaStream()
         {
             byte[] byts = new byte[this.Request.ContentLength.Value];
-            Request.Body.Read(byts, 0, byts.Length);
+  
+            await Request.Body.ReadAsync(byts.AsMemory(0, byts.Length));
             string json = Encoding.UTF8.GetString(byts);
-            return json.Trim();
+            return  json.Trim();
         }
 
         //#endregion

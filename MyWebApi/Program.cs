@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.WindowsServices;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -14,7 +15,7 @@ namespace MyWebApi
     {
         static void Main(string[] args)
         {
-            // 主机功能配置项
+            // 主机功能服务配置项(类似于功能插件,需要哪种就添加)
             void serverCfg(IServiceCollection service)
             {
                 // 跨域功能
@@ -36,15 +37,16 @@ namespace MyWebApi
                 .Build();
 
             // 默认文档配置项
-            DefaultFilesOptions defaultFileCfg = new DefaultFilesOptions();
-            defaultFileCfg.DefaultFileNames.Add("readme.html");
+            DefaultFilesOptions defaultDocCfg = new();
+            defaultDocCfg.DefaultFileNames.Add("readme.html");
 
             // 静态文件配置项
-            StaticFileOptions staticFilesCfg = new StaticFileOptions()
+            // https://docs.microsoft.com/zh-cn/aspnet/core/fundamentals/static-files?view=aspnetcore-5.0
+            StaticFileOptions staticFilesCfg = new()
             {
                 // 这里配置物理目录
                 FileProvider = new PhysicalFileProvider(
-            Path.Combine(Directory.GetCurrentDirectory(), "staticdir1")),
+                Path.Combine(Directory.GetCurrentDirectory(), "staticdir1")),
                 // 配置对应虚拟目录,就是url请求上的目录
                 RequestPath = "/sd1"
             };
@@ -56,9 +58,14 @@ namespace MyWebApi
                 .UseConfiguration(kestrelCfg)
                 .UseKestrel()
                 .Configure(app => app
+                    // 能在请求页面上显示异常信息,这是系统提供的异常处理,信息很详细,可以用于开发环境调错.
+                    //.UseDeveloperExceptionPage()
+
+                    // 自定义异常处理返回中间件
+                    .UseExceptionHandler(ApiHandler.CustomExceptionHandlerOptions())
 
                     // 默认静态文件(注意调用顺序,要在"静态文件UseStaticFiles"之前调用)
-                    .UseDefaultFiles(defaultFileCfg)
+                    .UseDefaultFiles(defaultDocCfg)
 
                     // 静态文件(注意调用顺序,要在"自定义路由中间件"之前调用)
                     .UseStaticFiles()
@@ -67,11 +74,6 @@ namespace MyWebApi
                     // 跨域
                     .UseCors(cors)
 
-                    // 能在请求页面上显示异常信息,这是系统提供的异常处理,信息很详细,可以用于开发环境调错.
-                    //.UseDeveloperExceptionPage()
-
-                    // 自定义异常处理返回中间件
-                    .UseExceptionHandler(ApiHandler.CustomExceptionHandlerOptions())
 
                     // 自定义路由中间件.这个中间件安排在最后,所以没有调用next().
                     .Use(ApiHandler.UrlHandler)
