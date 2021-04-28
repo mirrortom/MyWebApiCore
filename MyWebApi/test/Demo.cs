@@ -54,7 +54,6 @@ namespace MyWebApi
         public async Task throwcatch()
         {
             throw new Exception("自定义异常处理方法,在ApiHandler.CustomExceptionHandlerOptions()方法里实现.这是一个中间件,在Program.cs启动方法里要开起它.");
-            await this.Json(new { });
         }
         [HTTPPOST]
         public async Task getfile()

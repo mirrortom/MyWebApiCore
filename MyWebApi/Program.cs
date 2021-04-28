@@ -1,13 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.WindowsServices;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
-using System.Diagnostics;
-using System.IO;
+using Microsoft.Extensions.Hosting;
 
 namespace MyWebApi
 {
@@ -15,81 +9,63 @@ namespace MyWebApi
     {
         static void Main(string[] args)
         {
-            // 主机功能服务配置项(类似于功能插件,需要哪种就添加)
-            void serverCfg(IServiceCollection service)
+            // 加载配置选项
+            CustomSetting.Load();
+ 
+            // kestrel服务器功能选项加入配置
+            static void kestrelAppConfBuild(IApplicationBuilder app)
             {
-                // 跨域功能
-                service.AddCors();
+                // 跨域
+                app.UseCors(CustomSetting.CorsConfigBuild);
+
+                // 默认文档(注意调用顺序,要在"静态文件UseStaticFiles"之前调用)
+                app.UseDefaultFiles(CustomSetting.DefaultDocOptions);
+
+                // 静态文件功能(注意调用顺序,要在"自定义路由中间件"之前调用)
+                app.UseStaticFiles();
+
+                // 虚拟目录(静态文件的)
+                if (CustomSetting.VirtualDirsOptions != null)
+                {
+                    foreach (var item in CustomSetting.VirtualDirsOptions)
+                        app.UseStaticFiles(item);
+                }
+
+                // 系统提供的异常处理,能在请求页面上显示异常信息,信息很详细,用于开发环境调错.
+                //app.UseDeveloperExceptionPage();
+
+                // 自定义异常处理返回中间件.返回一个json
+                app.UseExceptionHandler(ApiHandler.CustomExceptionHandlerOptions());
+
+                // 自定义路由中间件.这个中间件安排在最后,所以没有调用next().
+                app.Use(ApiHandler.UrlHandler);
             }
 
-            // 跨域策略配置项
-            void cors(CorsPolicyBuilder cfg)
+
+            // web服务器主机: 加入功能选项,选择kestrel服务器
+            static void webHostBuild(IWebHostBuilder webBuilder)
             {
-                cfg.AllowAnyHeader();
-                cfg.AllowAnyMethod();
-                cfg.AllowAnyOrigin();
-                //cfg.AllowCredentials();
+                webBuilder.Configure(kestrelAppConfBuild);
+                webBuilder.UseUrls(CustomSetting.Urls);
+                webBuilder.UseKestrel();
             }
 
-            // kestrel服务器配置文件载入
-            IConfiguration kestrelCfg = new ConfigurationBuilder()
-                .AddJsonFile("kestrel.json")
-                .Build();
-
-            // 默认文档配置项
-            DefaultFilesOptions defaultDocCfg = new();
-            defaultDocCfg.DefaultFileNames.Add("readme.html");
-
-            // 静态文件配置项
-            // https://docs.microsoft.com/zh-cn/aspnet/core/fundamentals/static-files?view=aspnetcore-5.0
-            StaticFileOptions staticFilesCfg = new()
+            // 通用承载主机: 添加服务等
+            static void servicesConfigure(IServiceCollection services)
             {
-                // 这里配置物理目录
-                FileProvider = new PhysicalFileProvider(
-                Path.Combine(Directory.GetCurrentDirectory(), "staticdir1")),
-                // 配置对应虚拟目录,就是url请求上的目录
-                RequestPath = "/sd1"
-            };
-
-            // 开机运行,可选择其中一种方式运行,服务或者控制台
-            // 实例化主机,载入配置项
-            IWebHost webhost = new WebHostBuilder()
-                .ConfigureServices(serverCfg)
-                .UseConfiguration(kestrelCfg)
-                .UseKestrel()
-                .Configure(app => app
-                    // 能在请求页面上显示异常信息,这是系统提供的异常处理,信息很详细,可以用于开发环境调错.
-                    //.UseDeveloperExceptionPage()
-
-                    // 自定义异常处理返回中间件
-                    .UseExceptionHandler(ApiHandler.CustomExceptionHandlerOptions())
-
-                    // 默认静态文件(注意调用顺序,要在"静态文件UseStaticFiles"之前调用)
-                    .UseDefaultFiles(defaultDocCfg)
-
-                    // 静态文件(注意调用顺序,要在"自定义路由中间件"之前调用)
-                    .UseStaticFiles()
-                    .UseStaticFiles(staticFilesCfg)
-
-                    // 跨域
-                    .UseCors(cors)
-
-
-                    // 自定义路由中间件.这个中间件安排在最后,所以没有调用next().
-                    .Use(ApiHandler.UrlHandler)
-
-                )
-                .Build();
-            //
-            if (args.Length > 0 && args[0] == "s")
-            {
-                // 以windows服务方式运行
-                webhost.RunAsService();
+                // 跨域服务,(为什么不是在web主机上加入呢?)
+                services.AddCors();
             }
-            else
-            {
-                webhost.Run();
-            }
+
+            // 建立主机
+            IHostBuilder hostBuild = Host.CreateDefaultBuilder();
+            hostBuild.ConfigureServices(servicesConfigure);
+            // 添加kestrelweb服务器
+            hostBuild.ConfigureWebHostDefaults(webHostBuild);
+            // 生成主机实例,开机运行
+            IHost host = hostBuild.Build();
+            host.Run();
         }
     }
+
 }

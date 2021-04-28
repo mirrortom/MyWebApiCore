@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -47,6 +47,13 @@ namespace MyWebApi
         {
             get { return this.HttpContext.Response; }
         }
+        /// <summary>
+        /// 为当前 HTTP 请求获取 User 对象。
+        /// </summary>
+        protected ClaimsPrincipal User
+        {
+            get { return this.HttpContext.User; }
+        }
 
 
         #endregion
@@ -78,7 +85,7 @@ namespace MyWebApi
         /// <returns></returns>
         protected virtual Dictionary<string, object> ParaDictGET()
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
+            Dictionary<string, object> dict = new();
             foreach (string key in this.Request.Query.Keys)
             {
                 var values = this.Request.Query[key];
@@ -126,7 +133,7 @@ namespace MyWebApi
         /// <returns></returns>
         protected virtual Dictionary<string, object> ParaDictForm()
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
+            Dictionary<string, object> dict = new();
             foreach (string key in this.Request.Form.Keys)
             {
                 var values = this.Request.Form[key];
@@ -158,10 +165,10 @@ namespace MyWebApi
         protected virtual async Task<string> ParaStream()
         {
             byte[] byts = new byte[this.Request.ContentLength.Value];
-  
+
             await Request.Body.ReadAsync(byts.AsMemory(0, byts.Length));
             string json = Encoding.UTF8.GetString(byts);
-            return  json.Trim();
+            return json.Trim();
         }
 
         //#endregion

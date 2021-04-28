@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace MyWebApi
 {
@@ -71,7 +71,7 @@ namespace MyWebApi
                     throw new Exception($"not exists Api Attribute. Method: {apiClass}.{apiMethod}");
 
                 // 检查类或者方法上是否贴有AUTH特性,有则执行权限判断
-                if (!PowerCheck(context, webapiMethod, webapiT,workapi))
+                if (!PowerCheck(context, webapiMethod, webapiT, workapi))
                     throw new Exception($"Access Denied! Method: {apiClass}.{apiMethod}");
 
                 // 执行方法
@@ -95,7 +95,7 @@ namespace MyWebApi
                 // 返回异常信息
                 context.Response.ContentType = "application/json;charset=utf-8";
                 context.Response.StatusCode = 200;
-                string errJsonStr = JsonConvert.SerializeObject(
+                string errJsonStr =JsonConvert.SerializeObject(
                     new { errmsg = exh.Error.Message, errcode = 500 });
                 await context.Response.WriteAsync(errJsonStr);
             }
@@ -150,7 +150,7 @@ namespace MyWebApi
         }
     }
     #region 功能特性
-    class WebApiBaseAttribute : Attribute
+    public class WebApiBaseAttribute : Attribute
     {
         /// <summary>
         /// 接口功能描述
@@ -161,15 +161,15 @@ namespace MyWebApi
         /// </summary>
         public int Id { get; set; }
     }
-    class AUTHAttribute : WebApiBaseAttribute
-    {
-        
-    }
-    class HTTPPOSTAttribute : WebApiBaseAttribute
+    public class AUTHAttribute : WebApiBaseAttribute
     {
 
     }
-    class HTTPGETAttribute : WebApiBaseAttribute
+    public class HTTPPOSTAttribute : WebApiBaseAttribute
+    {
+
+    }
+    public class HTTPGETAttribute : WebApiBaseAttribute
     {
 
     }

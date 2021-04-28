@@ -1,0 +1,18 @@
+// 自定义配置文件
+{
+  // kestrel的监听端口: 多个用;号隔开
+  "urls": "http://localhost:10800",
+  // 默认页面: 多个用;号隔开.使用相对路径(相对web根目录)
+  "defaultDoc": "index.html",
+  // 虚拟目录: {fdir:"物理路径(相对web根目录)",rdir:"url请求路径,斜杠/打头"}
+  "virtualDir": [
+    {
+      "fdir": "staticdir1",
+      "rdir": "/sd1"
+    },
+    {
+      "fdir": "staticdir2",
+      "rdir": "/sd2"
+    }
+  ]
+}
