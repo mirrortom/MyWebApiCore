@@ -47,14 +47,6 @@ namespace MyWebApi
         {
             get { return this.HttpContext.Response; }
         }
-        /// <summary>
-        /// 为当前 HTTP 请求获取 User 对象。
-        /// </summary>
-        protected ClaimsPrincipal User
-        {
-            get { return this.HttpContext.User; }
-        }
-
 
         #endregion
 
