@@ -1,6 +1,6 @@
 ﻿# MyWebApiCore
-自定义WebApi的.net core版本
-[文档](https://mirrortom.date/wz/jizizuo/mywebapicore.html)  
+自定义WebApi的.net core版本  
+[Doc](https://mirrortom.github.io/wz/jizizuo/mywebapicore.html)  
 项目使用SDK Microsoft.NET.Sdk.Web  
 版本NET5.0  
 自定义中间件url分析  
