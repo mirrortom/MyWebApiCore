@@ -58,7 +58,7 @@ namespace MyWebApi
         [HTTPPOST]
         public async Task getfile()
         {
-            string file = AppContext.BaseDirectory+ "/wwwroot/readme.html";
+            string file = AppContext.BaseDirectory + "/wwwroot/readme.html";
             await this.File(file, "application/octet-stream", "说明readme.html");
         }
         [HTTPPOST]
@@ -71,6 +71,12 @@ namespace MyWebApi
             }
             IFormFile file = this.Request.Form.Files[0];
 
+            // save file
+            string filePath = AppContext.BaseDirectory + $"/{Guid.NewGuid():N}" + file.FileName;
+            using var stream = System.IO.File.Create(filePath);
+            await file.CopyToAsync(stream);
+
+            // return result
             await this.Json(new
             {
                 info = $"文件名:{file.FileName},大小:{file.Length}"
