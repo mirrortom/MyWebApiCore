@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace MyWebApi
@@ -18,21 +16,14 @@ namespace MyWebApi
     internal class ApiBase
     {
         #region 请求上下文对象及其它工具属性
-
-        /// <summary>
-        /// http请求上下文对象传入,此方法由handler调用
-        /// </summary>
-        /// <param name="context"></param>
         internal void SetHttpContext(HttpContext context)
         {
-            if (this.HttpContext == null)
-                this.HttpContext = context;
+            this.HttpContext = context;
         }
-
         /// <summary>
         /// 获取有关单个 HTTP 请求的 HTTP 特定的信息。
         /// </summary>
-        protected HttpContext HttpContext { get; private set; }
+        private HttpContext HttpContext;
         /// <summary>
         /// 为当前 HTTP 请求获取 HttpRequestBase 对象。
         /// </summary>
@@ -151,16 +142,16 @@ namespace MyWebApi
         /// <summary>
         /// 从InputStream中获取参数.然后返回UTF8编码的字符串.如果是个JSON字符串,可再做转换
         /// 如果get,form都没参数,可尝试这个方法获取.例如Content-Type: application/json类型的参数
-        /// netcore3.0后默认禁用了AllowSynchronousIO,因此用了异步方式
+        /// netcore3.0后默认禁用了AllowSynchronousIO
         /// 没有取到时返回null
         /// </summary>
-        protected virtual async Task<string> ParaStream()
+        protected virtual string ParaStream()
         {
             byte[] byts = new byte[this.Request.ContentLength.Value];
 
-            await Request.Body.ReadAsync(byts.AsMemory(0, byts.Length));
+            this.Request.Body.ReadAsync(byts.AsMemory(0, byts.Length));
             string json = Encoding.UTF8.GetString(byts);
-            return json.Trim();
+            return json ?? json.Trim();
         }
 
         //#endregion
@@ -171,40 +162,41 @@ namespace MyWebApi
         /// 返回JSON格式数据.obj如果是字符串,则视为json格式字符串直接返回.
         /// </summary>
         /// <param name="obj"></param>
-        protected async Task Json(object obj)
+        protected void Json(object obj)
         {
             this.Response.ContentType = "application/json;charset=utf-8";
             string jsonstr = obj.GetType() == typeof(string)
                 ? obj.ToString() : JsonConvert.SerializeObject(obj);
-            await this.Response.WriteAsync(jsonstr);
+            this.Response.WriteAsync(jsonstr);
         }
+
         /// <summary>
         /// 返回一段HTML格式文本
         /// </summary>
         /// <param name="html"></param>
-        protected async Task Html(string html)
+        protected void Html(string html)
         {
             this.Response.ContentType = "text/html;charset=utf-8";
-            await this.Response.WriteAsync(html);
+            this.Response.WriteAsync(html);
         }
         /// <summary>
         /// 返回纯文本格式字符串
         /// </summary>
         /// <param name="text"></param>
-        protected async Task Text(string text)
+        protected void Text(string text)
         {
             this.Response.ContentType = "text/html;charset=utf-8";
-            await this.Response.WriteAsync(text);
+            this.Response.WriteAsync(text);
         }
         /// <summary>
         /// 返回文件,需要指定文件内容头型
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="contentType"></param>
-        protected async Task File(string fileName, string contentType)
+        protected void File(string fileName, string contentType)
         {
             this.Response.ContentType = $"{contentType};charset=utf-8";
-            await this.Response.SendFileAsync(fileName);
+            this.Response.SendFileAsync(fileName);
         }
         /// <summary>
         /// 返回文件,指定文件内容头型,下载文件显示名
@@ -212,11 +204,11 @@ namespace MyWebApi
         /// <param name="fileName"></param>
         /// <param name="contentType"></param>
         /// <param name="fileDownloadName"></param>
-        protected async Task File(string fileName, string contentType, string fileDownloadName)
+        protected void File(string fileName, string contentType, string fileDownloadName)
         {
             this.Response.ContentType = $"{contentType};charset=utf-8";
             this.Response.Headers.Add("Content-disposition", $"attachment;filename={HttpUtility.UrlEncode(fileDownloadName)}");
-            await this.Response.SendFileAsync(fileName);
+            this.Response.SendFileAsync(fileName);
         }
         #endregion
     }

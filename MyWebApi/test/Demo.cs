@@ -15,58 +15,58 @@ namespace MyWebApi
     class DemoApi : ApiBase
     {
         [HTTPGET]
-        public async Task getpara()
+        public void getpara()
         {
             dynamic query = this.ParaGET();
-            await this.Json(query);
+            this.Json(query);
         }
         [HTTPGET]
-        public async Task getParaType()
+        public void getParaType()
         {
             dynamic query = this.ParaGET<testEntity>();
-            await this.Json(query);
+            this.Json(query);
         }
         [HTTPPOST]
-        public async Task formpara()
+        public void formpara()
         {
             dynamic query = this.ParaForm();
-            await this.Json(query);
+            this.Json(query);
         }
         [HTTPPOST]
-        public async Task formParaType()
+        public void formParaType()
         {
             dynamic query = this.ParaForm<testEntity>();
-            await this.Json(query);
+            this.Json(query);
         }
         [HTTPPOST]
-        public async Task parajson()
+        public void parajson()
         {
-            dynamic para = await this.ParaStream();
-            await this.Json(para);
+            dynamic para = this.ParaStream();
+            this.Json(para);
         }
         [HTTPGET]
         [AUTH]
-        public async Task token()
+        public void token()
         {
-            await this.Html("<p>需要权限,贴上[AUTH]特性.实现ApiHandler.PowerCheck()方法.</p>");
+            this.Html("<p>需要权限,贴上[AUTH]特性.实现ApiHandler.PowerCheck()方法.</p>");
         }
         [HTTPGET]
-        public async Task throwcatch()
+        public void throwcatch()
         {
-            throw new Exception("自定义异常处理方法,在ApiHandler.CustomExceptionHandlerOptions()方法里实现.这是一个中间件,在Program.cs启动方法里要开起它.");
+            throw new Exception("");
         }
         [HTTPPOST]
-        public async Task getfile()
+        public void getfile()
         {
-            string file = AppContext.BaseDirectory + "/wwwroot/readme.html";
-            await this.File(file, "application/octet-stream", "说明readme.html");
+            string file = AppContext.BaseDirectory + "/wwwroot/index.html";
+            this.File(file, "application/octet-stream", "index.html");
         }
         [HTTPPOST]
-        public async Task uploadfile()
+        public void uploadfile()
         {
             if (this.Request.Form.Files.Count == 0)
             {
-                await this.Json(new { info = "没有收到上传文件" });
+                this.Json(new { info = "没有收到上传文件" });
                 return;
             }
             IFormFile file = this.Request.Form.Files[0];
@@ -74,16 +74,16 @@ namespace MyWebApi
             // save file
             string filePath = AppContext.BaseDirectory + $"/{Guid.NewGuid():N}" + file.FileName;
             using var stream = System.IO.File.Create(filePath);
-            await file.CopyToAsync(stream);
+            file.CopyToAsync(stream);
 
             // return result
-            await this.Json(new
+            this.Json(new
             {
                 info = $"文件名:{file.FileName},大小:{file.Length}"
             });
         }
         [HTTPGET]
-        public async Task gethtml()
+        public void gethtml()
         {
             string html = @"
 <!DOCTYPE>
@@ -95,7 +95,7 @@ namespace MyWebApi
 </body>
 </html>
 ";
-            await this.Html(html);
+            this.Html(html);
         }
 
     }

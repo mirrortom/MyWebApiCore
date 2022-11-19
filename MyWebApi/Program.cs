@@ -11,60 +11,56 @@ namespace MyWebApi
         {
             // 加载配置选项
             CustomSetting.Load();
- 
-            // kestrel服务器功能选项加入配置
-            static void kestrelAppConfBuild(IApplicationBuilder app)
+
+            // webapp 设置
+            var webapp = (IApplicationBuilder app) =>
             {
-                // 跨域
-                app.UseCors(CustomSetting.CorsConfigBuild);
+                // 生产环境异常处理
+                app.UseExceptionHandler(ApiHandler.CustomExceptMW);
+                // 开发环境异常处理 (系统中间件)
+                //app.UseDeveloperExceptionPage();
 
-                // 默认文档(注意调用顺序,要在"静态文件UseStaticFiles"之前调用)
-                app.UseDefaultFiles(CustomSetting.DefaultDocOptions);
+                // 默认文档,静态文件 (系统中间件)
+                app.UseDefaultFiles()
+                   .UseStaticFiles();
 
-                // 静态文件功能(注意调用顺序,要在"自定义路由中间件"之前调用)
-                app.UseStaticFiles();
-
-                // 虚拟目录(静态文件的)
+                // 提供wwwroot以外的其它虚拟目录(静态文件的) (系统中间件)
                 if (CustomSetting.VirtualDirsOptions != null)
                 {
                     foreach (var item in CustomSetting.VirtualDirsOptions)
                         app.UseStaticFiles(item);
                 }
 
-                // 系统提供的异常处理,能在请求页面上显示异常信息,信息很详细,用于开发环境调错.
-                //app.UseDeveloperExceptionPage();
+                // 跨域策略 (系统中间件)
+                app.UseCors(CustomSetting.CorsConfigBuild);
 
-                // 自定义异常处理返回中间件.返回一个json
-                app.UseExceptionHandler(ApiHandler.CustomExceptionHandlerOptions());
+                // url映射到类的方法
+                app.Run(ApiHandler.UrlMapMethodMW);
 
-                // 自定义路由中间件.这个中间件安排在最后,所以没有调用next().
-                app.Use(ApiHandler.UrlHandler);
-            }
+            };
 
-
-            // web服务器主机: 加入功能选项,选择kestrel服务器
-            static void webHostBuild(IWebHostBuilder webBuilder)
+            // webhost 设置
+            var webHostBuild = (IWebHostBuilder webHost) =>
             {
-                webBuilder.Configure(kestrelAppConfBuild);
-                webBuilder.UseUrls(CustomSetting.Urls);
-                webBuilder.UseKestrel();
-            }
+                webHost.UseKestrel()// 使用kestrel服务器
+                       .UseUrls(CustomSetting.Urls)// 监听端点
+                       .Configure(webapp);// 承载应用
+            };
 
-            // 通用承载主机: 添加服务等
-            static void servicesConfigure(IServiceCollection services)
+            // host 服务设置
+            var srvsOnHost = (IServiceCollection services) =>
             {
-                // 跨域服务,(为什么不是在web主机上加入呢?)
+                // 跨域服务
                 services.AddCors();
-            }
+            };
 
-            // 建立主机
-            IHostBuilder hostBuild = Host.CreateDefaultBuilder();
-            hostBuild.ConfigureServices(servicesConfigure);
-            // 添加kestrelweb服务器
-            hostBuild.ConfigureWebHostDefaults(webHostBuild);
-            // 生成主机实例,开机运行
-            IHost host = hostBuild.Build();
-            host.Run();
+            // 建立主机->载入配置->运行
+            // 用默认配置建立主机:(https://learn.microsoft.com/zh-cn/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-7.0)
+            Host.CreateDefaultBuilder()
+                .ConfigureServices(srvsOnHost)// 按需配置服务
+                .ConfigureWebHost(webHostBuild)// 配置web主机
+                .Build()
+                .Run();
         }
     }
 

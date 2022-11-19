@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>mywebapi测试</title>
+  <link rel="icon" href="data:;base64,=">
+</head>
+<body>
+  <div class="content">
+    <div id="desc" title="简介">
+      <h1>简介</h1>
+      <p>查看项目文档 /doc/mywebapicore.html</p>
+    </div>
+    <h1 id="demo">测试</h1>
+    <div id="demotestbox">
+      <p>1. /demo/gethtml</p>
+      <p>这个url调用的是demo类的gethtml方法,返回html</p>
+      <a href="" url="/demo/gethtml" target="_blank">调用</a>
+      <br />
+
+      <p>2. /demo/getpara?name=mywebapi&info=.net core版本</p>
+      <p>调用的是demo类的getpara方法,返回传入的get参数</p>
+      <p>参数: ?name=mywebapi&info=.net core版本</p>
+      <a href="" url="/demo/getpara?name=mywebapi&info=.net core版本" target="_blank">调用</a>
+      <br />
+
+      <p>3. /api/demo1/index</p>
+      <p>调用的是demo1的index方法,api是demo1类的命名空间.这个功能可以将API分类(用文件夹命名空间)</p>
+      <a href="" url="/api/demo1/index" target="_blank">调用</a>
+      <br />
+
+      <p>4. /demo/formpara</p>
+      <p>POST传表单参数后返回所传的参数</p>
+      <p>参数: name="form1" value="mywebapi"</p>
+      <form url="/demo/formpara" method="post">
+        form1<input type="text" name="form1" value="mywebapi" />
+        form2<input type="text" name="form2" value=".net core 版本" />
+        <input type="submit" value="提交" formtarget="_blank" />
+      </form>
+      <br />
+
+      <p>5. /demo/parajson</p>
+      <p>传body参数</p>
+      <p>参数: {name:"mywebapi",info:".net core版本"} </p>
+      <form url="/demo/parajson" method="post" enctype="text/plain">
+        json<textarea name="json">{name:"mywebapi",info:".net core版本"}</textarea>
+        <input type="submit" value="提交" formtarget="_blank" />
+      </form>
+      <br />
+
+      <p>6. /demo/file</p>
+      <p> 上传文件,下载文件</p>
+      <form url="/demo/getfile" method="post" enctype="multipart/form-data">
+        <input type="submit" value="下载文件" />
+      </form>
+      <form url="/demo/uploadfile" method="post" enctype="multipart/form-data">
+        <input name="file1" type="file" />
+        <input type="submit" value="上传文件" formtarget="_blank" />
+      </form>
+      <br />
+
+      <p>7. /sd1/index.html</p>
+      <p>调用虚拟目录下的静态文件,对应文件staticdir1/index.html</p>
+      <a href="" url="/sd1/index.html" target="_blank">调用</a>
+      <br />
+
+      <p>8. 引发一个异常</p>
+      <a href="" url="/demo/throwcatch" target="_blank">调用</a>
+      <br /><br />
+    </div>
+  </div>
+
+  <script>
+    // URL+端口 window.location.host
+    let url = window.location.protocol + '//' + window.location.host;
+    let box = document.querySelector('#demotestbox');
+    box.querySelectorAll('a[url]').forEach(item => {
+      item.href = url + item.getAttribute('url');
+    })
+    box.querySelectorAll('form[url]').forEach(item => {
+      item.action = url + item.getAttribute('url');
+    })
+
+  </script>
+</body>
+</html>

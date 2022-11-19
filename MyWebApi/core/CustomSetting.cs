@@ -11,12 +11,13 @@ namespace MyWebApi
     /// </summary>
     internal static class CustomSetting
     {
-        // 默认文档配置项
-        internal static DefaultFilesOptions DefaultDocOptions { get; private set; }
         // 监听地址
         internal static string[] Urls { get; private set; }
+        // 默认文档配置项
+        internal static DefaultFilesOptions DefaultDocOptions { get; private set; }
         // 虚拟目录
         internal static StaticFileOptions[] VirtualDirsOptions { get; private set; }
+
 
         /// <summary>
         /// 加载配置
@@ -62,33 +63,34 @@ namespace MyWebApi
         }
 
         // 静态文件配置项
-        // 文档: https://docs.microsoft.com/zh-cn/aspnet/core/fundamentals/static-files?view=aspnetcore-5.0
+        // 文档: https://learn.microsoft.com/zh-cn/aspnet/core/fundamentals/static-files?view=aspnetcore-7.0
         /// <summary>
         /// 虚拟目录设定
         /// </summary>
         /// <param name="virtualDir"></param>
         private static void VirtualDirsOptionsSet(dynamic virtualDir)
         {
-            // virtualDir: [{fdir:"物理路径(相对web根目录)",rdir:"url请求路径,斜杠/打头"}]
+            // virtualDir: [{fdir:"物理路径(相对web根目录)",refdir:"url映射路径,斜杠/打头"}]
             if (virtualDir == null || virtualDir.Count == 0)
                 return;
             VirtualDirsOptions = new StaticFileOptions[virtualDir.Count];
             for (int i = 0; i < VirtualDirsOptions.Length; i++)
             {
                 dynamic item = virtualDir[i];
-                VirtualDirsOptions[i] = new()
+                VirtualDirsOptions[i] = new StaticFileOptions()
                 {
                     // 这里配置物理目录
                     FileProvider = new PhysicalFileProvider(
                 Path.Combine(Directory.GetCurrentDirectory(), (string)item.fdir)),
                     // 配置对应虚拟目录,就是url请求上的目录
-                    RequestPath = (string)item.rdir
+                    RequestPath = (string)item.refdir
                 };
             }
         }
 
         /// <summary>
         /// 跨域策略 选项
+        /// https://learn.microsoft.com/zh-cn/aspnet/core/security/cors?view=aspnetcore-6.0#uc1
         /// </summary>
         /// <param name="option"></param>
         internal static void CorsConfigBuild(CorsPolicyBuilder option)
