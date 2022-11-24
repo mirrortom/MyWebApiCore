@@ -52,6 +52,7 @@ namespace MyWebApi
             {
                 // 跨域服务
                 services.AddCors();
+                services.AddMemoryCache();
             };
 
             // 建立主机->载入配置->运行

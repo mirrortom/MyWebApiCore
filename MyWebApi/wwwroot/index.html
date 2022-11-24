@@ -52,10 +52,11 @@
       <form url="/demo/getfile" method="post" enctype="multipart/form-data">
         <input type="submit" value="下载文件" />
       </form>
-      <form url="/demo/uploadfile" method="post" enctype="multipart/form-data">
-        <input name="file1" type="file" />
-        <input type="submit" value="上传文件" formtarget="_blank" />
-      </form>
+      <div>
+        <input id="file1Input" type="file" />
+        <button id="uploadBtn" onclick="uploadFile('/demo/uploadfile')">上传文件</button>
+        <p id="uploadMsg"></p>
+      </div>
       <br />
 
       <p>7. /sd1/index.html</p>
@@ -80,6 +81,46 @@
       item.action = url + item.getAttribute('url');
     })
 
+    async function uploadFile(path) {
+      let formData = new FormData();
+      let file = document.getElementById('file1Input').files[0];
+      formData.append('file1', file);
+      try {
+        let json = await postAsync(url + path, formData);
+        document.getElementById('uploadMsg').innerText = JSON.stringify(json);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    async function postAsync(url, para, initCfg = null, resType = 'json') {
+      let cfg = initPost(para, initCfg);
+      //
+      let res = await fetch(url, cfg);
+      if (res.ok)
+        return await resType != 'json' ? res.text() : res.json();
+      else {
+        let txt = await res.text()
+        throw new Error(txt);
+      }
+    }
+    function initPost(para, initCfg) {
+      let formData = new FormData();
+      if (para instanceof FormData) {
+        formData = para;
+      } else if (para) {
+        Object.keys(para).forEach((key) => {
+          formData.append(key, para[key]);
+        });
+      }
+      let cfg = { method: "POST", body: formData };
+      if (initCfg) {
+        Object.keys(initCfg).forEach((key) => {
+          cfg[key] = initCfg[key];
+        });
+      }
+      return cfg;
+    }
   </script>
 </body>
 </html>
