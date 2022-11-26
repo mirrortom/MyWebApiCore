@@ -82,7 +82,6 @@
       <div>
         <input id="file1Input" type="file" />
         <button id="uploadBtn" onclick="uploadFile('/demo/uploadfile')">上传文件</button>
-        <p id="uploadMsg"></p>
       </div>
       <br />
 
@@ -131,9 +130,9 @@
     async function demoRequestBody(path) {
       // body para initcfg (application-plain)
       let cfg = { headers: new Headers({ "Content-Type": "application-json" }) };
-      cfg.body = document.getElementById('form_num2').value;
+      para = document.getElementById('form_num2').value;
       try {
-        let result = await postAsync(url + path, {}, cfg, 'text');
+        let result = await postAsync(url + path, para, cfg, 'text');
         showMsg(result);
       } catch (err) {
         showMsg(err.message);
@@ -170,15 +169,16 @@
       }
     }
     function initPost(para, initCfg) {
-      let formData = new FormData();
-      if (para instanceof FormData) {
-        formData = para;
+      let cfg = { method: "POST" };
+      if (para instanceof FormData || typeof para == 'string') {
+        cfg.body = para;
       } else if (para) {
+        let formData = new FormData();
         Object.keys(para).forEach((key) => {
           formData.append(key, para[key]);
         });
+        cfg.body = formData;
       }
-      let cfg = { method: "POST", body: formData };
       if (initCfg) {
         Object.keys(initCfg).forEach((key) => {
           cfg[key] = initCfg[key];
