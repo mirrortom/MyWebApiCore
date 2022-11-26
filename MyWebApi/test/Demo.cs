@@ -13,54 +13,65 @@ namespace MyWebApi
 
     class DemoApi : ApiBase
     {
+        [HTTPPOST]
         [HTTPGET]
         public async Task getpara()
         {
             dynamic query = this.ParaGET();
             await this.Json(query);
         }
+
+        [HTTPPOST]
         [HTTPGET]
         public async Task getParaType()
         {
             dynamic query = this.ParaGET<DemoEntity>();
             await this.Json(query);
         }
+
         [HTTPPOST]
         public async Task formpara()
         {
             dynamic query = await this.ParaForm();
             await this.Json(query);
         }
+
         [HTTPPOST]
         public async Task formParaType()
         {
             dynamic query = await this.ParaForm<DemoEntity>();
             await this.Json(query);
         }
+
         [HTTPPOST]
-        public async Task parajson()
+        public async Task parabody()
         {
             dynamic para = await this.ParaStream();
-            await this.Json(para);
+            await this.Text(para);
         }
+
         [HTTPGET]
         [AUTH]
         public async Task token()
         {
             await this.Html("<p>需要权限,贴上[AUTH]特性.实现ApiHandler.PowerCheck()方法.</p>");
         }
+
         [HTTPGET]
+        [HTTPPOST]
         public async Task throwcatch()
         {
             throw new Exception("server was throw a exception!");
             await Task.CompletedTask;
         }
+
         [HTTPPOST]
         public async Task getfile()
         {
             string file = AppContext.BaseDirectory + "/wwwroot/index.html";
             await this.File(file, "application/octet-stream", "index.html");
         }
+
         [HTTPPOST]
         public async Task uploadfile()
         {
@@ -85,6 +96,8 @@ namespace MyWebApi
                 info = $"文件名:{file.FileName},大小:{file.Length}"
             });
         }
+
+        [HTTPPOST]
         [HTTPGET]
         public async Task gethtml()
         {
@@ -102,6 +115,7 @@ namespace MyWebApi
         }
 
         // 读取或者写入缓存
+        [HTTPPOST]
         [HTTPGET]
         public async Task cache()
         {

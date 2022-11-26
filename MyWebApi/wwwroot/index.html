@@ -3,48 +3,75 @@
 <head>
   <title>mywebapi测试</title>
   <link rel="icon" href="data:;base64,=">
+  <style>
+    .infobox {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 200px;
+      background-color: black;
+      font-size: 16px;
+      color: lightblue;
+      word-break: break-word;
+    }
+
+    button {
+      padding: 5px 15px;
+      border: none;
+      font-size: 16px;
+      color: #343434;
+      background-image: linear-gradient(white,lightblue);
+    }
+
+      button:hover {
+        background-image: linear-gradient(lightblue,white);
+        transition: background 2s;
+      }
+  </style>
 </head>
 <body>
+  <p id="msgbox" class="infobox"></p>
   <div class="content">
     <div id="desc" title="简介">
       <h1>简介</h1>
-      <p>查看项目文档 /doc/mywebapicore.html</p>
+      <p>查看<a href="https://mirrortom.github.io/doc/mywebapicore.html">项目文档</a></p>
     </div>
     <h1 id="demo">测试</h1>
     <div id="demotestbox">
       <p>1. /demo/gethtml</p>
       <p>这个url调用的是demo类的gethtml方法,返回html</p>
-      <a href="" url="/demo/gethtml" target="_blank">调用</a>
+      <button onclick="demoRequest('/demo/gethtml', {},'html')">调用</button>
       <br />
 
       <p>2. /demo/getpara?name=mywebapi&info=.net core版本</p>
       <p>调用的是demo类的getpara方法,返回传入的get参数</p>
       <p>参数: ?name=mywebapi&info=.net core版本</p>
-      <a href="" url="/demo/getpara?name=mywebapi&info=.net core版本" target="_blank">调用</a>
+      <button onclick="demoRequest('/demo/getpara?name=mywebapi&info=.net core版本', {})">调用</button>
       <br />
 
       <p>3. /api/demo1/index</p>
       <p>调用的是demo1的index方法,api是demo1类的命名空间.这个功能可以将API分类(用文件夹命名空间)</p>
-      <a href="" url="/api/demo1/index" target="_blank">调用</a>
+      <button onclick="demoRequest('/api/demo1/index', {})">调用</button>
       <br />
 
       <p>4. /demo/formpara</p>
       <p>POST传表单参数后返回所传的参数</p>
       <p>参数: name="form1" value="mywebapi"</p>
-      <form url="/demo/formpara" method="post">
+      <form id="form_num1">
         form1<input type="text" name="form1" value="mywebapi" />
-        form2<input type="text" name="form2" value=".net core 版本" />
-        <input type="submit" value="提交" formtarget="_blank" />
+        form2<input type="text" name="form2" value=".net 版本 6.0" />
       </form>
+      <button onclick='demoRequestForm("/demo/formpara")'>提交</button>
       <br />
 
-      <p>5. /demo/parajson</p>
+      <p>5. /demo/parabody</p>
       <p>传body参数</p>
       <p>参数: {name:"mywebapi",info:".net core版本"} </p>
-      <form url="/demo/parajson" method="post" enctype="text/plain">
-        json<textarea name="json">{name:"mywebapi",info:".net core版本"}</textarea>
-        <input type="submit" value="提交" formtarget="_blank" />
-      </form>
+      <div>
+        json<textarea id="form_num2" style="width:300px;height:50px">{name:"mywebapi",info:".net 版本6.0"}</textarea>
+      </div>
+      <button onclick="demoRequestBody('/demo/parabody')">提交</button>
       <br />
 
       <p>6. /demo/file</p>
@@ -60,12 +87,13 @@
       <br />
 
       <p>7. /sd1/index.html</p>
-      <p>调用虚拟目录下的静态文件,对应文件staticdir1/index.html</p>
-      <a href="" url="/sd1/index.html" target="_blank">调用</a>
+      <p>打开虚拟目录下的静态文件,对应文件staticdir1/index.html</p>
+      <a href="" url="/sd1/index.html" target="_blank">跳转sd1</a>
+      <a href="" url="/sd2/index.html" target="_blank">跳转sd2</a>
       <br />
 
       <p>8. 引发一个异常</p>
-      <a href="" url="/demo/throwcatch" target="_blank">调用</a>
+      <button onclick='demoRequest("/demo/throwcatch", {})'>调用</button>
       <br /><br />
     </div>
   </div>
@@ -77,22 +105,59 @@
     box.querySelectorAll('a[url]').forEach(item => {
       item.href = url + item.getAttribute('url');
     })
-    box.querySelectorAll('form[url]').forEach(item => {
-      item.action = url + item.getAttribute('url');
-    })
 
+    // request 1,2,3,8
+    async function demoRequest(path, para, resType = 'json') {
+      try {
+        let result = await postAsync(url + path, para, null, resType);
+        showMsg(resType == 'json' ? JSON.stringify(result) : result);
+      } catch (err) {
+        showMsg(err.message);
+      }
+    }
+    // request 4
+    async function demoRequestForm(path) {
+      // 通过form表单建立formData对象
+      let formData = new FormData(document.getElementById('form_num1'));
+      // console.log(formData.get('form1'));
+      try {
+        let result = await postAsync(url + path, formData);
+        showMsg(JSON.stringify(result));
+      } catch (err) {
+        showMsg(err.message);
+      }
+    }
+    // request 5 body para
+    async function demoRequestBody(path) {
+      // body para initcfg (application-plain)
+      let cfg = { headers: new Headers({ "Content-Type": "application-json" }) };
+      cfg.body = document.getElementById('form_num2').value;
+      try {
+        let result = await postAsync(url + path, {}, cfg, 'text');
+        showMsg(result);
+      } catch (err) {
+        showMsg(err.message);
+      }
+    }
+
+    // 6
     async function uploadFile(path) {
       let formData = new FormData();
       let file = document.getElementById('file1Input').files[0];
       formData.append('file1', file);
       try {
         let json = await postAsync(url + path, formData);
-        document.getElementById('uploadMsg').innerText = JSON.stringify(json);
+        showMsg(JSON.stringify(json));
       } catch (err) {
-        console.log(err);
+        showMsg(err.message);
       }
     }
-
+    // tool==================================================================
+    // show msg
+    function showMsg(txt) {
+      document.getElementById('msgbox').innerText = txt || '';
+    }
+    // ajax
     async function postAsync(url, para, initCfg = null, resType = 'json') {
       let cfg = initPost(para, initCfg);
       //

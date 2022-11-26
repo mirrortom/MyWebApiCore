@@ -154,10 +154,10 @@ namespace MyWebApi
         /// <para>如果参数太大,会占用很多内存,方法是先读取到内存中的.</para>
         /// <para>没有取到时返回string.Empty</para>
         /// </summary>
-        protected virtual async Task<string> ParaStream()
+        protected virtual Task<string> ParaStream()
         {
             // 可能为string.Empty
-            return await new StreamReader(this.Request.Body).ReadToEndAsync();
+            return new StreamReader(this.Request.Body).ReadToEndAsync();
         }
 
         #endregion

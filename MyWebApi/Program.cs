@@ -52,6 +52,7 @@ namespace MyWebApi
             {
                 // 跨域服务
                 services.AddCors();
+                // MemoryCache内存缓存工具.在ApiBase.SetHttpContext里获取使用
                 services.AddMemoryCache();
             };
 
