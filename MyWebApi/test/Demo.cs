@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using Microsoft.Extensions.Caching.Memory;
+using MyWebApi.test;
 
 namespace MyWebApi
 {
@@ -50,12 +51,15 @@ namespace MyWebApi
             await this.Text(para);
         }
 
-        [HTTPGET]
-        [AUTH]
-        public async Task token()
+        // 需要权限
+        [HTTPPOST]
+        [AuthDemo]
+        public async Task auth()
         {
-            await this.Html("<p>需要权限,贴上[AUTH]特性.实现ApiHandler.PowerCheck()方法.</p>");
+            await this.Json(this.User);
         }
+
+        protected override User User { get { return base.User as User; } }
 
         [HTTPGET]
         [HTTPPOST]
@@ -119,8 +123,18 @@ namespace MyWebApi
         [HTTPGET]
         public async Task cache()
         {
-            string id = this.MemoryCache.Get<string>("id");
-            await this.Json(new { id });
+            string key = "last-request-time";
+            // 取出上次请求时间
+            string lastRequestTime = this.MemoryCache.Get<string>(key);
+            // 缓存本次请求时间
+            DateTime requestTime = DateTime.Now;
+            this.MemoryCache.Set<string>(key, requestTime.ToString());
+            await this.Json(new
+            {
+                lastRequestTime =
+                string.IsNullOrWhiteSpace(lastRequestTime) ? "---" : lastRequestTime
+            });
         }
+
     }
 }

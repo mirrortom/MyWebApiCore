@@ -91,9 +91,23 @@
       <a href="" url="/sd2/index.html" target="_blank">跳转sd2</a>
       <br />
 
-      <p>8. 引发一个异常</p>
+      <p>8. /demo/throwcatch</p>
+      <p>引发一个异常,异常处理中间件捕获并且返回错误信息</p>
       <button onclick='demoRequest("/demo/throwcatch", {})'>调用</button>
-      <br /><br />
+      <br />
+
+      <p>9. /demo/cache</p>
+      <p>请求到达后,会缓存当时时间,下次请求时返回上次请求时间.这个功能使用了系统内置中间件AddMemoryCache()</p>
+      <button onclick='demoRequest("/demo/cache", {})'>调用</button>
+      <br />
+
+      <p>9. /demo/auth</p>
+      <p>在请求header里放入token字符串,如果没有,请求验证失败</p>
+      <div>
+        token<input id="token" type="text" value="0123456789" />
+      </div>
+      <button onclick='demoRequestAuth("/demo/auth", {})'>调用</button>
+      <br />
     </div>
   </div>
 
@@ -151,6 +165,19 @@
         showMsg(err.message);
       }
     }
+
+    // 10
+    async function demoRequestAuth(path) {
+      let token = document.getElementById('token').value;
+      let cfg = { headers: new Headers({ "Auth": token }) };
+      try {
+        let result = await postAsync(url + path, {}, cfg);
+        showMsg(JSON.stringify(result));
+      } catch (err) {
+        showMsg(err.message);
+      }
+    }
+
     // tool==================================================================
     // show msg
     function showMsg(txt) {

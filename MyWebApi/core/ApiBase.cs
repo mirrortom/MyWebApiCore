@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace MyWebApi
     {
         #region 请求上下文对象及其它工具属性
         /// <summary>
-        /// ApiHandler的URL中间件调用此方法设定请求上下文对象和其它功能
+        /// ApiHandler.UrlMapMethodMW(),URL中间件调用此方法设定请求上下文对象和其它功能
         /// </summary>
         /// <param name="context"></param>
         internal void SetHttpContext(HttpContext context)
@@ -28,25 +29,37 @@ namespace MyWebApi
             this.Response = context.Response;
             this.MemoryCache = context.RequestServices.GetService(typeof(IMemoryCache)) as IMemoryCache;
         }
-
         /// <summary>
         /// 公用内存缓存,来自HttpContext.RequestServices
         /// </summary>
-        protected IMemoryCache MemoryCache;
+        protected IMemoryCache MemoryCache { get; private set; }
         /// <summary>
         /// 为当前 HTTP 请求获取 HttpRequestBase 对象,来自HttpContext.Request
         /// </summary>
-        protected HttpRequest Request;
+        protected HttpRequest Request { get; private set; }
         /// <summary>
         /// 为当前 HTTP 响应获取 HttpResponseBase 对象,来自HttpContext.Response
         /// </summary>
-        protected HttpResponse Response;
-
+        protected HttpResponse Response { get; private set; }
         /// <summary>
         /// 获取有关单个 HTTP 请求的 HTTP 特定的信息.(可直接使用其它便利属性),由ApiHandler的URL中间件设定
         /// </summary>
-        protected HttpContext HttpContext;
+        protected HttpContext HttpContext { get; private set; }
 
+
+        /// <summary>
+        /// Auth.Authenticate()调用此方法设定当前请求者信息
+        /// </summary>
+        /// <param name="user"></param>
+        internal void SetUser(IUser user)
+        {
+            this.User = user;
+        }
+        /// <summary>
+        /// 当前请求者信息(可以在webapi继承类中重写为返回实际类型的User)
+        /// <para>protected override User User { get { return base.User as User; } }</para>
+        /// </summary>
+        protected virtual IUser User { get; private set; }
         #endregion
 
         #region 便利方法,将请求参数转为对象
@@ -170,7 +183,7 @@ namespace MyWebApi
 
         // 误区
         // Response返回方法做成一个Task方法,在webapi中可以异步调用.
-        
+
 
         /// <summary>
         /// 返回JSON格式数据.obj如果是字符串,则视为json格式字符串直接返回.

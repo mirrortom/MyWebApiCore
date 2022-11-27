@@ -84,7 +84,7 @@ namespace MyWebApi
             }
 
             // 检查类或者方法上是否贴有AUTH特性,有则执行权限判断
-            if (!AuthCheck(context, webapiMethod, webapiT))
+            if (!AuthCheck(context, webapiMethod, webapiT, workapi))
             {
                 return ApiHandler.ErrorEnd(context, 5006, $"Method Access Denied! [{apiClass}.{apiMethod}]");
             }
@@ -124,17 +124,17 @@ namespace MyWebApi
         /// <param name="webapiMethod"></param>
         /// <param name="webapiType"></param>
         /// <returns></returns>
-        private static bool AuthCheck(HttpContext context, MethodInfo webapiMethod, Type webapiType)
+        private static bool AuthCheck(HttpContext context, MethodInfo webapiMethod, Type webapiType, ApiBase webapiInstance)
         {
             if (Attribute.IsDefined(webapiType, typeof(AUTHAttribute)))
             {
                 var auth = webapiType.GetCustomAttribute<AUTHAttribute>(false);
-                return auth.Authenticate(context);
+                return auth.Authenticate(context, webapiInstance);
             }
             if (Attribute.IsDefined(webapiMethod, typeof(AUTHAttribute)))
             {
                 var auth = webapiMethod.GetCustomAttribute<AUTHAttribute>(false);
-                return auth.Authenticate(context);
+                return auth.Authenticate(context, webapiInstance);
             }
             return true;
         }
@@ -181,38 +181,4 @@ namespace MyWebApi
             return context.Response.WriteAsync(errJsonStr);
         }
     }
-
-    #region 功能特性
-    // 特性贴在webapi的方法上,AUTH特性也可以贴在类上
-    public class WebApiBaseAttribute : Attribute
-    {
-        /// <summary>
-        /// 接口功能描述
-        /// </summary>
-        public string Desc { get; set; }
-        /// <summary>
-        /// 接口id(为每一个接口分配一个整数ID,用于权限判断)
-        /// </summary>
-        public int Id { get; set; }
-    }
-    public class AUTHAttribute : WebApiBaseAttribute
-    {
-        /// <summary>
-        /// <para>判断解析token,检查登录者信息</para>
-        /// <para>参考: string token = context.Request.Headers["Auth"].ToString();</para>
-        /// <para>继承此特性,实现本方法,贴在webapi上</para>
-        /// </summary>
-        /// <param name="content"></param>
-        /// <returns></returns>
-        public virtual bool Authenticate(HttpContext content) => true;
-    }
-    public class HTTPPOSTAttribute : WebApiBaseAttribute
-    {
-
-    }
-    public class HTTPGETAttribute : WebApiBaseAttribute
-    {
-
-    }
-    #endregion
 }
