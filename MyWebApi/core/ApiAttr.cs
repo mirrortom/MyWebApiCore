@@ -38,7 +38,11 @@ namespace MyWebApi
     #endregion
 
     /// <summary>
-    /// 用于存放当前请求者信息,在ApiBase.User属性. 接口无任何成员,仅仅为了形式统一.
+    /// 请求者信息,据需求修改此类
     /// </summary>
-    interface IUser { }
+    internal class User
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+    }
 }

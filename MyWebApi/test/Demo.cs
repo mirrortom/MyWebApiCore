@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using MyWebApi.test;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace MyWebApi
 {
@@ -58,8 +54,6 @@ namespace MyWebApi
         {
             await this.Json(this.User);
         }
-
-        protected override User User { get { return base.User as User; } }
 
         [HTTPGET]
         [HTTPPOST]

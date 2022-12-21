@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -48,18 +47,10 @@ namespace MyWebApi
 
 
         /// <summary>
-        /// Auth.Authenticate()调用此方法设定当前请求者信息
-        /// </summary>
-        /// <param name="user"></param>
-        internal void SetUser(IUser user)
-        {
-            this.User = user;
-        }
-        /// <summary>
         /// 当前请求者信息(可以在webapi继承类中重写为返回实际类型的User)
-        /// <para>protected override User User { get { return base.User as User; } }</para>
+        /// <para>Auth.Authenticate()方法调用时会设定当前请求者信息</para>
         /// </summary>
-        protected virtual IUser User { get; private set; }
+        internal virtual User User { get; set; }
         #endregion
 
         #region 便利方法,将请求参数转为对象
