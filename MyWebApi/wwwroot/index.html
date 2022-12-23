@@ -9,11 +9,12 @@
       top: 0;
       right: 0;
       width: 300px;
-      height: 200px;
+      height: 500px;
       background-color: black;
       font-size: 16px;
       color: lightblue;
       word-break: break-word;
+      overflow-y:auto;
     }
 
     button {
@@ -39,6 +40,11 @@
     </div>
     <h1 id="demo">测试</h1>
     <div id="demotestbox">
+      <p>0. /demo/getinfo</p>
+      <p>这个url调用的是demo类的getinfo方法,返回json</p>
+      <button onclick="demoRequestInfo('/demo/getinfo')">调用</button>
+      <br />
+
       <p>1. /demo/gethtml</p>
       <p>这个url调用的是demo类的gethtml方法,返回html</p>
       <button onclick="demoRequest('/demo/gethtml', {},'html')">调用</button>
@@ -76,7 +82,7 @@
 
       <p>6. /demo/file</p>
       <p> 上传文件,下载文件</p>
-      <form url="/demo/getfile" method="post" enctype="multipart/form-data">
+      <form action="/demo/getfile" method="post" enctype="multipart/form-data">
         <input type="submit" value="下载文件" />
       </form>
       <div>
@@ -128,6 +134,21 @@
         showMsg(err.message);
       }
     }
+
+    // get server info
+    async function demoRequestInfo(path) {
+      try {
+        let result = await postAsync(url + path, {});
+        let html = '';
+        for (var k in result) {
+          html += `<p>#${k}<br />${result[k]}</p>`
+        }
+        showMsg(html,'html');
+      } catch (err) {
+        showMsg(err.message);
+      }
+    }
+
     // request 4
     async function demoRequestForm(path) {
       // 通过form表单建立formData对象
@@ -180,8 +201,11 @@
 
     // tool==================================================================
     // show msg
-    function showMsg(txt) {
-      document.getElementById('msgbox').innerText = txt || '';
+    function showMsg(txt, type = 'txt') {
+      if (type == 'txt')
+        document.getElementById('msgbox').innerText = txt || '';
+      else
+        document.getElementById('msgbox').innerHTML = txt || '';
     }
     // ajax
     async function postAsync(url, para, initCfg = null, resType = 'json') {
