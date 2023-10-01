@@ -126,15 +126,15 @@ internal class ApiHandler
     /// <returns></returns>
     private static bool AuthCheck(HttpContext context, MethodInfo webapiMethod, Type webapiType, ApiBase webapiInstance)
     {
-        if (Attribute.IsDefined(webapiType, typeof(AUTHAttribute)))
+        if (Attribute.IsDefined(webapiType, typeof(AUTHBaseAttribute)))
         {
-            var auth = webapiType.GetCustomAttribute<AUTHAttribute>(false);
-            return auth.Authenticate(context, webapiInstance);
+            var auth = webapiType.GetCustomAttribute<AUTHBaseAttribute>(false);
+            return auth.Authenticate(context, webapiInstance.User);
         }
-        if (Attribute.IsDefined(webapiMethod, typeof(AUTHAttribute)))
+        if (Attribute.IsDefined(webapiMethod, typeof(AUTHBaseAttribute)))
         {
-            var auth = webapiMethod.GetCustomAttribute<AUTHAttribute>(false);
-            return auth.Authenticate(context, webapiInstance);
+            var auth = webapiMethod.GetCustomAttribute<AUTHBaseAttribute>(false);
+            return auth.Authenticate(context, webapiInstance.User);
         }
         return true;
     }

@@ -62,6 +62,13 @@ class DemoApi : ApiBase
     {
         await this.Json(this.User);
     }
+    // 获取token
+    [HTTPPOST]
+    public async Task gettoken()
+    {
+        string token = TokenDemo.Create();
+        await this.Text(token);
+    }
 
     [HTTPGET]
     [HTTPPOST]

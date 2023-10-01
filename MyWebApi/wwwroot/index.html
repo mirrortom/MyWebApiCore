@@ -14,7 +14,7 @@
       font-size: 16px;
       color: lightblue;
       word-break: break-word;
-      overflow-y:auto;
+      overflow-y: auto;
     }
 
     button {
@@ -107,12 +107,16 @@
       <button onclick='demoRequest("/demo/cache", {})'>调用</button>
       <br />
 
-      <p>9. /demo/auth</p>
-      <p>在请求header里放入token字符串,如果没有,请求验证失败</p>
+      <p>10. /demo/gettoken</p>
+      <p>模拟登录获取token字符串</p>
       <div>
-        token<input id="token" type="text" value="0123456789" />
+        token<textarea id="token"></textarea>
       </div>
-      <button onclick='demoRequestAuth("/demo/auth", {})'>调用</button>
+      <button onclick='demoGetToken("/demo/gettoken")'>调用</button>
+
+      <p>11. /demo/auth</p>
+      <p>在请求header里放入token字符串,如果没有,请求验证失败</p>
+      <button onclick='demoRequestAuth("/demo/auth")'>调用</button>
       <br />
     </div>
   </div>
@@ -143,7 +147,7 @@
         for (var k in result) {
           html += `<p>#${k}<br />${result[k]}</p>`
         }
-        showMsg(html,'html');
+        showMsg(html, 'html');
       } catch (err) {
         showMsg(err.message);
       }
@@ -188,6 +192,17 @@
     }
 
     // 10
+    async function demoGetToken(path) {
+      try {
+        let result = await postAsync(url + path, {} , null, 'text');
+        document.getElementById('token').value = result;
+        showMsg(result);
+      } catch (err) {
+        showMsg(err.message);
+      }
+    }
+
+    // 11
     async function demoRequestAuth(path) {
       let token = document.getElementById('token').value;
       let cfg = { headers: new Headers({ "Auth": token }) };

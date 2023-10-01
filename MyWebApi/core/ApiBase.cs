@@ -28,6 +28,7 @@ internal class ApiBase
         this.Request = context.Request;
         this.Response = context.Response;
         this.MemoryCache = context.RequestServices.GetService(typeof(IMemoryCache)) as IMemoryCache;
+        this.User = new();
     }
     /// <summary>
     /// 公用内存缓存,来自HttpContext.RequestServices
@@ -46,15 +47,10 @@ internal class ApiBase
     /// </summary>
     protected HttpContext HttpContext { get; private set; }
 
-    internal void SetUser(User user)
-    {
-        this.User = user;
-    }
     /// <summary>
-    /// 当前请求者信息(可以在webapi继承类中重写为返回实际类型的User)
-    /// <para>Auth.Authenticate()方法调用时会设定当前请求者信息</para>
+    /// 登录者标识信息
     /// </summary>
-    internal virtual User User { get; private set; }
+    internal UserAuth User { get; private set; }
     #endregion
 
     #region 便利方法,将请求参数转为对象

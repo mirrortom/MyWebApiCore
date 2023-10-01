@@ -3,19 +3,14 @@
 namespace MyWebApi.test;
 
 /// <summary>
-/// 验证授权
+/// 验证授权,这个一般实现就是检查token,如果有效,生成一个对象保留请求者信息.
 /// </summary>
-internal class AuthDemoAttribute : AUTHAttribute
+internal class AuthDemoAttribute : AUTHBaseAttribute
 {
-    internal override bool Authenticate(HttpContext context, ApiBase apiInstance)
+    internal override bool Authenticate(HttpContext context, UserAuth user)
     {
+        // 取得token: string token = context.Request.Headers["Auth"].ToString();
         string token = context.Request.Headers["Auth"];
-        if (token == "0123456789")
-        {
-            // 设定请求者信息
-            apiInstance.SetUser(new User() { Id = "0", Name = "Mirror" });
-            return true;
-        }
-        return false;
+        return TokenDemo.Check(token, user);
     }
 }
