@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Hosting;
 using MyWebApi.test;
 using System;
 using System.IO;
@@ -8,16 +7,24 @@ using System.Threading.Tasks;
 
 namespace MyWebApi;
 
-class DemoApi : ApiBase
+internal class DemoApi : ApiBase
 {
     [HTTPPOST]
     [HTTPGET]
     public async Task getinfo()
     {
         var testinfo = this.HttpContext.RequestServices.GetService(typeof(TestInfoService)) as TestInfoService;
-        var dict = testinfo.GetInfo();
-        await this.Json(dict);
+        if (testinfo != null)
+        {
+            var dict = testinfo.GetInfo();
+            await this.Json(dict);
+            return;
+        }
+        var srv = this.HttpContext.Connection;
+        var result = new { ip = srv.LocalIpAddress.ToString(), port = srv.LocalPort };
+        await this.Json(result);
     }
+
     [HTTPPOST]
     [HTTPGET]
     public async Task getpara()
@@ -62,6 +69,7 @@ class DemoApi : ApiBase
     {
         await this.Json(this.User);
     }
+
     // 获取token
     [HTTPPOST]
     public async Task gettoken()
@@ -144,5 +152,4 @@ class DemoApi : ApiBase
             string.IsNullOrWhiteSpace(lastRequestTime) ? "---" : lastRequestTime
         });
     }
-
 }

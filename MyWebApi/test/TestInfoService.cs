@@ -1,28 +1,24 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Connections.Features;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MyWebApi.test;
 
-public class TestInfoService:IHostedService
+public class TestInfoService : IHostedService
 {
     private readonly IWebHostEnvironment WebHostEnv;
     private readonly IConfiguration Configuration;
+
     public TestInfoService(IWebHostEnvironment webHostEnv, IConfiguration configuration)
     {
         WebHostEnv = webHostEnv;
         Configuration = configuration;
     }
+
     public Dictionary<string, string> GetInfo()
     {
         string urls = Configuration.GetValue<string>(WebHostDefaults.ServerUrlsKey);
@@ -38,7 +34,6 @@ public class TestInfoService:IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        //
         string n = Environment.NewLine;
         Console.WriteLine($"--应用信息--");
         var dict = GetInfo();

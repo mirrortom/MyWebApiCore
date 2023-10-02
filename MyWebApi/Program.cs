@@ -5,7 +5,6 @@ using Microsoft.Extensions.Hosting;
 
 using MyWebApi;
 using MyWebApi.test;
-using System;
 using cfg = MyWebApi.Config;
 
 // 加载配置选项
@@ -55,10 +54,15 @@ host.ConfigureServices((IServiceCollection services) =>
     // MemoryCache内存缓存工具.在ApiBase.SetHttpContext里获取并复制到属性上
     services.AddMemoryCache();
 
+    // 获取服务器信息,F5测试时会在控制台打印.主要用于测试
 #if DEBUG
-    // 在控制台打印服务器信息,用于测试时
-    services.AddSingleton<TestInfoService>()
-            .AddHostedService<TestInfoService>();
+    // addhostedservice添加的服务,不能通过HttpContext.RequestServices.GetService()方式获取,
+    // 可以获取AddSingleton方式添加的服务.
+    // 另外,hostedservice方式添加的服务会主动执行,而sing却不会,要自己调用一次才行.
+    // 所以,hosted添加是为了立即执行在控制台打印信息.
+    // 而sing方式是为了演示在webapi中可以调用该服务.示例见demoapi.getinfo()
+    services.AddHostedService<TestInfoService>()
+            .AddSingleton<TestInfoService>();
 #endif
 })
 .ConfigureWebHost((IWebHostBuilder webHostBuild) =>
@@ -76,5 +80,3 @@ host.ConfigureServices((IServiceCollection services) =>
 // 启动
 host.Build()
     .Run();
-
-
