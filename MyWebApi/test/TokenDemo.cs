@@ -18,8 +18,8 @@ public class TokenDemo
         // token规则:uid,uname,rid,rname,exprie,sign这6个常用信息组成(这些信息用参数传来)
         UserAuth u = new()
         {
-            Id = "0",
-            Name = "mirror",
+            UId = "0",
+            UName = "mirror",
             RId = 0,
             RName = "admin",
             // 有效期为生成时刻起,加上2个小时
@@ -27,7 +27,7 @@ public class TokenDemo
         };
 
         // 签名规则:上面5个信息按顺序合并字符串做sha140摘要
-        string signStr = $"{u.Id}{u.Name}{u.RId}{u.RName}{u.Expire}";
+        string signStr = $"{u.UId}{u.UName}{u.RId}{u.RName}{u.Expire}";
 
         u.Sign = SecurityHelp.Hex40_SHA1(signStr);
 
@@ -58,19 +58,18 @@ public class TokenDemo
 
         // check 过期时间检查
         long passedtime = DateTime.Now.Ticks - u.Expire;
-        ;
         if (passedtime >= 0)
             return false;
 
         // 验证签名
-        string signStr = $"{u.Id}{u.Name}{u.RId}{u.RName}{u.Expire}";
+        string signStr = $"{u.UId}{u.UName}{u.RId}{u.RName}{u.Expire}";
         string sign = SecurityHelp.Hex40_SHA1(signStr);
         if (sign != u.Sign)
             return false;
 
         // 登录者信息保存
-        user.Id = u.Id;
-        user.Name = u.Name;
+        user.UId = u.UId;
+        user.UName = u.UName;
         user.RId = u.RId;
         user.RName = u.RName;
         return true;
