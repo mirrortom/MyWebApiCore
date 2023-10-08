@@ -142,10 +142,10 @@ internal class DemoApi : ApiBase
     {
         string key = "last-request-time";
         // 取出上次请求时间
-        string lastRequestTime = this.MemoryCache.Get<string>(key);
+        string lastRequestTime = WrapContext.MemoryCache.Get<string>(key);
         // 缓存本次请求时间
         DateTime requestTime = DateTime.Now;
-        this.MemoryCache.Set<string>(key, requestTime.ToString());
+        WrapContext.MemoryCache.Set<string>(key, requestTime.ToString());
         await this.Json(new
         {
             lastRequestTime =
