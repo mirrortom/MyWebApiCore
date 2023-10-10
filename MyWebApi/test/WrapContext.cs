@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Caching.Memory;
+using MyWebApi.core;
 
 namespace MyWebApi.test;
 
@@ -12,11 +13,11 @@ public class WrapContext
 
     protected readonly IMemoryCache cache = WrapContext.MemoryCache;
     protected UserAuth user;
-    protected ResultContext result;
+    protected ReturnCode result;
 
-    public void SetContext(UserAuth userauth, ResultContext resultcontext)
+    public void SetContext(UserAuth userauth, ReturnCode resultcode)
     {
         this.user = userauth;
-        this.result = resultcontext;
+        this.result = resultcode;
     }
 }

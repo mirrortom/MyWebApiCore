@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
+using Microsoft.AspNetCore.Http;
+using MyWebApi.core;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,6 +30,7 @@ public class ApiBase
         this.Request = context.Request;
         this.Response = context.Response;
         this.User = new();
+        this.ResultCode = new();
     }
 
     /// <summary>
@@ -48,7 +52,10 @@ public class ApiBase
     /// 登录者标识信息
     /// </summary>
     internal UserAuth User { get; private set; }
-
+    /// <summary>
+    /// 返回码
+    /// </summary>
+    internal ReturnCode ResultCode { get; private set; }
     #endregion 请求上下文对象及其它工具属性
 
     #region 便利方法,将请求参数转为对象
@@ -186,6 +193,34 @@ public class ApiBase
         string jsonstr = obj.GetType() == typeof(string)
             ? obj.ToString() : JsonConvert.SerializeObject(obj);
         return this.Response.WriteAsync(jsonstr);
+    }
+
+    /// <summary>
+    /// 返回一个json结果,最少含有键errcode,可能含有errmsg,list,item
+    /// 如果errcode或者errmsg参数缺少,将从ReturnCode对象取值ErrCode或者ErrMsg
+    /// </summary>
+    /// <param name="errcode">状态码</param>
+    /// <param name="errmsg">信息</param>
+    /// <param name="list">列表数据</param>
+    /// <param name="item">单个数据</param>
+    /// <returns></returns>
+    protected Task JsonResult(int errcode = -1, string errmsg = null, IEnumerable<object> list = null, object item = null)
+    {
+        Dictionary<string, object> dic = new();
+        dic.Add("errcode", errcode == -1 ? this.ResultCode.ErrCode : errcode);
+        if (!string.IsNullOrWhiteSpace(errmsg))
+            dic.Add("errmsg", errmsg);
+        else if (!string.IsNullOrWhiteSpace(this.ResultCode.ErrMsg))
+            dic.Add("errmsg", this.ResultCode.ErrMsg);
+        if (list != null)
+        {
+            dic.Add("list", list);
+        }
+        if (item != null)
+        {
+            dic.Add("item", item);
+        }
+        return this.Json(dic);
     }
 
     /// <summary>
