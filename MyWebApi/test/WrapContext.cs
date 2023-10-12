@@ -11,9 +11,11 @@ public class WrapContext
 {
     public static IMemoryCache MemoryCache { get; set; }
 
+    //protected readonly DBMO db = DbContext.GetDB();
     protected readonly IMemoryCache cache = WrapContext.MemoryCache;
     protected UserAuth user;
     protected ReturnCode result;
+
 
     public void SetContext(UserAuth userauth, ReturnCode resultcode)
     {

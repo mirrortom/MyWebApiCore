@@ -18,6 +18,12 @@ namespace MyWebApi;
 /// </summary>
 public class ApiBase
 {
+    public ApiBase()
+    {
+        // 需要在构造函数里初始化,否则继承类的构造函数里无法使用
+        this.User = new();
+        this.ResultCode = new();
+    }
     #region 请求上下文对象及其它工具属性
 
     /// <summary>
@@ -29,8 +35,6 @@ public class ApiBase
         this.HttpContext = context;
         this.Request = context.Request;
         this.Response = context.Response;
-        this.User = new();
-        this.ResultCode = new();
     }
 
     /// <summary>
@@ -51,11 +55,11 @@ public class ApiBase
     /// <summary>
     /// 登录者标识信息
     /// </summary>
-    internal UserAuth User { get; private set; }
+    internal readonly UserAuth User;
     /// <summary>
     /// 返回码
     /// </summary>
-    internal ReturnCode ResultCode { get; private set; }
+    internal readonly ReturnCode ResultCode;
     #endregion 请求上下文对象及其它工具属性
 
     #region 便利方法,将请求参数转为对象
