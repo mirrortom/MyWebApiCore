@@ -5,21 +5,45 @@ using MyWebApi.core;
 namespace MyWebApi.test;
 
 /// <summary>
-/// 包装各种上下文对象,用于传递
+/// 建立服务对象.包装上下文对象,用于服务类的基类
 /// </summary>
 public class WrapContext
 {
     public static IMemoryCache MemoryCache { get; set; }
 
-    //protected readonly DBMO db = DbContext.GetDB();
-    protected readonly IMemoryCache cache = WrapContext.MemoryCache;
+    //protected DBMO db = DbContext.GetDB();
+    protected IMemoryCache cache;
     protected UserAuth user;
     protected ReturnCode result;
 
-
-    public void SetContext(UserAuth userauth, ReturnCode resultcode)
+    /// <summary>
+    /// 初始化服务对象,由子类重写,实现自定义功能
+    /// </summary>
+    public virtual void Init()
     {
-        this.user = userauth;
-        this.result = resultcode;
+
+    }
+
+    /// <summary>
+    /// 新建服务对象,并设置一些上下文
+    /// </summary>
+    /// <typeparam name="SRV"></typeparam>
+    /// <param name="userauth"></param>
+    /// <param name="resultcode"></param>
+    /// <returns></returns>
+    public static SRV NewSrv<SRV>(UserAuth userauth, ReturnCode resultcode)
+        where SRV : WrapContext, new()
+    {
+        var srv = new SRV
+        {
+            // 上下文对象
+            user = userauth,
+            result = resultcode,
+            cache = WrapContext.MemoryCache,
+            //db = DbContext.GetDBM()
+        };
+        // 初始化
+        srv.Init();
+        return srv;
     }
 }

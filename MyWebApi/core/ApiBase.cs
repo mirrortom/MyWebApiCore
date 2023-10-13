@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using MyWebApi.core;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,6 +22,7 @@ public class ApiBase
         this.User = new();
         this.ResultCode = new();
     }
+
     #region 请求上下文对象及其它工具属性
 
     /// <summary>
@@ -56,10 +55,12 @@ public class ApiBase
     /// 登录者标识信息
     /// </summary>
     internal readonly UserAuth User;
+
     /// <summary>
     /// 返回码
     /// </summary>
     internal readonly ReturnCode ResultCode;
+
     #endregion 请求上下文对象及其它工具属性
 
     #region 便利方法,将请求参数转为对象

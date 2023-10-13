@@ -25,6 +25,7 @@ internal class DemoApi : ApiBase
         await this.Json(result);
     }
 
+    // get参数
     [HTTPPOST]
     [HTTPGET]
     public async Task getpara()
@@ -33,6 +34,7 @@ internal class DemoApi : ApiBase
         await this.Json(query);
     }
 
+    // get类型参数
     [HTTPPOST]
     [HTTPGET]
     public async Task getParaType()
@@ -41,6 +43,7 @@ internal class DemoApi : ApiBase
         await this.Json(query);
     }
 
+    // 表单参数
     [HTTPPOST]
     public async Task formpara()
     {
@@ -48,6 +51,7 @@ internal class DemoApi : ApiBase
         await this.Json(query);
     }
 
+    // 表单类型参数
     [HTTPPOST]
     public async Task formParaType()
     {
@@ -55,6 +59,7 @@ internal class DemoApi : ApiBase
         await this.Json(query);
     }
 
+    // body参数
     [HTTPPOST]
     public async Task parabody()
     {
@@ -78,6 +83,7 @@ internal class DemoApi : ApiBase
         await this.Text(token);
     }
 
+    // 丢出异常
     [HTTPGET]
     [HTTPPOST]
     public async Task throwcatch()
@@ -86,6 +92,7 @@ internal class DemoApi : ApiBase
         await Task.CompletedTask;
     }
 
+    // 提供下载文件
     [HTTPPOST]
     public async Task getfile()
     {
@@ -93,6 +100,7 @@ internal class DemoApi : ApiBase
         await this.File(file, "application/octet-stream", "index.html");
     }
 
+    // 接收上传文件
     [HTTPPOST]
     public async Task uploadfile()
     {
@@ -118,6 +126,7 @@ internal class DemoApi : ApiBase
         });
     }
 
+    // 返回html文本
     [HTTPPOST]
     [HTTPGET]
     public async Task gethtml()
@@ -151,5 +160,15 @@ internal class DemoApi : ApiBase
             lastRequestTime =
             string.IsNullOrWhiteSpace(lastRequestTime) ? "---" : lastRequestTime
         });
+    }
+
+    // 使用服务类
+    [HTTPPOST]
+    [HTTPGET]
+    public async Task srv()
+    {
+        // 获取服务
+        var srv = WrapContext.NewSrv<Srv1Demo>(this.User, this.ResultCode);
+        await this.JsonResult(200, srv.info());
     }
 }
