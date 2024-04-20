@@ -1,4 +1,4 @@
-﻿namespace MyWebApi;
+﻿namespace MyWebApi.core;
 
 /// <summary>
 /// 登录者信息,可继承此类

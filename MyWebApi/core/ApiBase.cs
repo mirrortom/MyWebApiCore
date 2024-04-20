@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace MyWebApi;
+namespace MyWebApi.core;
 
 /// <summary>
 /// webapi接口类基类

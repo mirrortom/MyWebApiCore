@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace MyWebApi;
+namespace MyWebApi.core;
 
 /// <summary>
 /// 载入配置,并提供配置项

@@ -5,9 +5,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using MyWebApi;
+using MyWebApi.core;
 using MyWebApi.test;
-using cfg = MyWebApi.Config;
+using cfg = MyWebApi.core.Config;
 
 // 加载配置选项
 cfg.Load();

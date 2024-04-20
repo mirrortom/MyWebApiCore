@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 
-namespace MyWebApi;
+namespace MyWebApi.core;
 
 #region 功能特性
 // 特性贴在webapi的方法上,AUTH特性也可以贴在类上

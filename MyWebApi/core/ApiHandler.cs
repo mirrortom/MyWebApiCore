@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace MyWebApi;
+namespace MyWebApi.core;
 
 // 自定义中间件
 internal class ApiHandler
