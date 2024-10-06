@@ -29,4 +29,12 @@ public class UserAuth
     /// 签名
     /// </summary>
     public string Sign { get; set; }
+    /// <summary>
+    /// 远端IP地址
+    /// </summary>
+    public string Ip{ get; set; }
+    /// <summary>
+    /// 远端口号
+    /// </summary>
+    public string Port{ get; set; }
 }

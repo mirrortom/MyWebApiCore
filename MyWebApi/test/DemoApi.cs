@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using MyWebApi.core;
 using MyWebApi.test;
+using Microsoft.VisualBasic;
 
 namespace MyWebApi;
 
@@ -41,7 +42,7 @@ internal class DemoApi : ApiBase
     [HTTPGET]
     public async Task getParaType()
     {
-        dynamic query = this.ParaGET<DemoEntity>();
+        var query = this.ParaGET<DemoEntity>();
         await this.Json(query);
     }
 
@@ -55,9 +56,9 @@ internal class DemoApi : ApiBase
 
     // 表单类型参数
     [HTTPPOST]
-    public async Task formParaType()
+    public async Task formParaType(int type)
     {
-        dynamic query = await this.ParaForm<DemoEntity>();
+        var query = await this.ParaForm<DemoEntity>();
         await this.Json(query);
     }
 
@@ -65,7 +66,7 @@ internal class DemoApi : ApiBase
     [HTTPPOST]
     public async Task parabody()
     {
-        dynamic para = await this.ParaStream();
+        var para = await this.ParaStream();
         await this.Text(para);
     }
 
@@ -144,6 +145,15 @@ internal class DemoApi : ApiBase
 </html>
 ";
         await this.Html(html);
+    }
+
+    // 返回纯文本
+    [HTTPPOST]
+    [HTTPGET]
+    public async Task gettext()
+    {
+        string txt = "hello world. I trying return a plain!";
+        await this.Text(txt);
     }
 
     // 读取或者写入缓存

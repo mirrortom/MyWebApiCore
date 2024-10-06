@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MyWebApi.core;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -64,24 +65,6 @@ public class ApiBase
     #endregion 请求上下文对象及其它工具属性
 
     #region 便利方法,将请求参数转为对象
-
-    /// <summary>
-    /// 获取GET参数,并且转为动态类型
-    /// 无参数时返回空对象(ExpandoObject)
-    /// </summary>
-    /// <returns></returns>
-    protected virtual dynamic ParaGET()
-    {
-        dynamic obj = new System.Dynamic.ExpandoObject();
-        foreach (string key in this.Request.Query.Keys)
-        {
-            var values = this.Request.Query[key];
-            ((IDictionary<string, object>)obj).Add(key,
-                values.Count > 1 ? values : values.FirstOrDefault());
-        }
-        return obj;
-    }
-
     /// <summary>
     /// 获取GET参数,并且转为字典类型
     /// 无参数时返回空字典
@@ -99,14 +82,26 @@ public class ApiBase
     }
 
     /// <summary>
-    /// 获取GET参数,并且转为指定类型
+    /// 获取GET参数,并且转为动态类型
+    /// 无参数时返回空对象(JObject)
+    /// </summary>
+    /// <returns></returns>
+    protected virtual dynamic ParaGET()
+    {
+        var dict = ParaDictGET();
+        dynamic obj = JObject.FromObject(dict);
+        return obj;
+    }
+
+    /// <summary>
+    /// 获取GET参数,并且转为T类型
     /// 无参数时返回T的实例
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     protected virtual T ParaGET<T>()
     {
-        dynamic obj = this.ParaGET();
+        var obj = this.ParaDictGET();
         string json = JsonConvert.SerializeObject(obj);
         return JsonConvert.DeserializeObject<T>(json);
     }
@@ -115,31 +110,13 @@ public class ApiBase
     // https://learn.microsoft.com/zh-cn/aspnet/core/performance/performance-best-practices?view=aspnetcore-7.0#prefer-readformasync-over-requestform
 
     /// <summary>
-    /// 获取form参数,并且转为动态类型
-    /// 无参数时返回空对象(ExpandoObject)
-    /// </summary>
-    /// <returns></returns>
-    protected virtual async Task<dynamic> ParaForm()
-    {
-        dynamic obj = new System.Dynamic.ExpandoObject();
-        var form = await this.Request.ReadFormAsync();
-        foreach (string key in form.Keys)
-        {
-            var values = form[key];
-            ((IDictionary<string, object>)obj).Add(key,
-                values.Count > 1 ? values : values.FirstOrDefault());
-        }
-        return obj;
-    }
-
-    /// <summary>
     /// 获取Form参数,并且转为字典类型
     /// 无参数时返回空字典
     /// </summary>
     /// <returns></returns>
     protected virtual async Task<Dictionary<string, object>> ParaDictForm()
     {
-        Dictionary<string, object> dict = new();
+        Dictionary<string, object> dict = [];
         var form = await this.Request.ReadFormAsync();
         foreach (string key in form.Keys)
         {
@@ -150,6 +127,18 @@ public class ApiBase
     }
 
     /// <summary>
+    /// 获取form参数,并且转为动态类型
+    /// 无参数时返回空对象(JObject)
+    /// </summary>
+    /// <returns></returns>
+    protected virtual async Task<dynamic> ParaForm()
+    {
+        var dict = await ParaDictForm();
+        dynamic obj = JObject.FromObject(dict);
+        return obj;
+    }
+
+    /// <summary>
     /// 获取form参数,并且转为指定类型
     /// 无参数时返回T的实例
     /// </summary>
@@ -157,7 +146,7 @@ public class ApiBase
     /// <returns></returns>
     protected virtual async Task<T> ParaForm<T>()
     {
-        dynamic obj = await this.ParaForm();
+        dynamic obj = await this.ParaDictForm();
         string json = JsonConvert.SerializeObject(obj);
         return JsonConvert.DeserializeObject<T>(json);
     }
@@ -244,7 +233,7 @@ public class ApiBase
     /// <param name="text"></param>
     protected Task Text(string text)
     {
-        this.Response.ContentType = "text/html;charset=utf-8";
+        this.Response.ContentType = "text/plain;charset=utf-8";
         return this.Response.WriteAsync(text);
     }
 

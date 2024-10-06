@@ -50,32 +50,53 @@
       <button onclick="demoRequest('/demo/gethtml', {},'html')">调用</button>
       <br />
 
+      <p>1.1 /demo/gettext</p>
+      <p>调用的是demo类的gettext方法,返回纯文本</p>
+      <button onclick="demoRequest('/demo/gettext', {},'html')">调用</button>
+      <br />
+
       <p>2. /demo/getpara?name=mywebapi&info=.net core版本</p>
       <p>调用的是demo类的getpara方法,返回传入的get参数</p>
-      <p>参数: ?name=mywebapi&info=.net core版本</p>
-      <button onclick="demoRequest('/demo/getpara?name=mywebapi&info=.net core版本', {})">调用</button>
+      <p>参数: ?name=mywebapi&info=.net core版本&id=1&id=2</p>
+      <button onclick="demoRequest('/demo/getpara?name=mywebapi&info=.net core版本&id=1&id=2', {})">调用</button>
       <br />
 
       <p>3. /api/demo1/index</p>
       <p>调用的是demo1的index方法,api是demo1类的命名空间.这个功能可以将API分类(用文件夹命名空间)</p>
+      <a href="/api/demo1/index" target="_blank">调用(GET)</a>
+      <br />
+
+      <p>3.1 /api/demo1/index</p>
+      <p>调用的是demo1的index方法,使用POST方式,调用这个方法的POST重载</p>
       <button onclick="demoRequest('/api/demo1/index', {})">调用</button>
       <br />
 
       <p>4. /demo/formpara</p>
       <p>POST传表单参数后返回所传的参数</p>
-      <p>参数: name="form1" value="mywebapi"</p>
+      <p>参数: 在下方表单填写</p>
       <form id="form_num1">
         form1<input type="text" name="form1" value="mywebapi" />
-        form2<input type="text" name="form2" value=".net 版本 6.0" />
+        form2<input type="text" name="form2" value=".net 版本 8.0" />
       </form>
-      <button onclick='demoRequestForm("/demo/formpara")'>提交</button>
+      <button onclick='demoRequestForm("/demo/formpara","form_num1")'>提交</button>
+      <br />
+
+      <p>4.1 /demo/formparatype</p>
+      <p>POST传表单参数后,序列化为实体,返回所传的参数.</p>
+      <p>参数: 在下方表单填写</p>
+      <form id="form_num2">
+        id<input type="text" name="id" value="1" />
+        name<input type="text" name="name" value="mirror" />
+        title<input type="text" name="title" value="employee" />
+      </form>
+      <button onclick='demoRequestForm("/demo/formparatype","form_num2")'>提交</button>
       <br />
 
       <p>5. /demo/parabody</p>
       <p>传body参数</p>
       <p>参数: {name:"mywebapi",info:".net core版本"} </p>
       <div>
-        json<textarea id="form_num2" style="width:300px;height:50px">{name:"mywebapi",info:".net 版本6.0"}</textarea>
+        json<textarea id="form_num2" style="width:300px;height:50px">{name:"mywebapi",info:".net 版本8.0"}</textarea>
       </div>
       <button onclick="demoRequestBody('/demo/parabody')">提交</button>
       <br />
@@ -158,9 +179,9 @@
     }
 
     // request 4
-    async function demoRequestForm(path) {
+    async function demoRequestForm(path, formId) {
       // 通过form表单建立formData对象
-      let formData = new FormData(document.getElementById('form_num1'));
+      let formData = new FormData(document.getElementById(formId));
       // console.log(formData.get('form1'));
       try {
         let result = await postAsync(url + path, formData);
@@ -198,7 +219,7 @@
     // 10
     async function demoGetToken(path) {
       try {
-        let result = await postAsync(url + path, {} , null, 'text');
+        let result = await postAsync(url + path, {}, null, 'text');
         document.getElementById('token').value = result;
         showMsg(result);
       } catch (err) {
