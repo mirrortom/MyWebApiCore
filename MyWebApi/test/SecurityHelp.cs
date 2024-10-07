@@ -30,6 +30,34 @@ public class SecurityHelp
     }
 
     /// <summary>
+    /// Sha256摘要,返回64位长度小写16进制字符串
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static string Hex64_SHA256(string str)
+    {
+        return PlainToDigest(str, 2);
+    }
+    /// <summary>
+    /// Sha384摘要,返回96位长度小写16进制字符串
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static string Hex96_SHA384(string str)
+    {
+        return PlainToDigest(str, 3);
+    }
+    /// <summary>
+    /// Sha512摘要,返回128位长度小写16进制字符串
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static string Hex128_SHA512(string str)
+    {
+        return PlainToDigest(str, 4);
+    }
+
+    /// <summary>
     /// 生产明文的摘要,空字符串或者null时不生成并返回null
     /// </summary>
     /// <returns></returns>
@@ -41,23 +69,23 @@ public class SecurityHelp
         byte[] data;
         if (type == 0)
         {
-            data = MD5.Create().ComputeHash(buffer);
+            data = MD5.HashData(buffer);
         }
         else if (type == 1)
         {
-            data = SHA1.Create().ComputeHash(buffer);
+            data = SHA1.HashData(buffer);
         }
         else if (type == 2)
         {
-            data = SHA256.Create().ComputeHash(buffer);
+            data = SHA256.HashData(buffer);
         }
         else if (type == 3)
         {
-            data = SHA384.Create().ComputeHash(buffer);
+            data = SHA384.HashData(buffer);
         }
         else if (type == 4)
         {
-            data = SHA512.Create().ComputeHash(buffer);
+            data = SHA512.HashData(buffer);
         }
         else
             return null;
@@ -67,6 +95,8 @@ public class SecurityHelp
     #endregion
 
     #region AES
+    // doc AES https://docs.microsoft.com/zh-cn/dotnet/api/system.security.cryptography.aes?view=net-6.0
+
     /// <summary>
     /// 用于 AES 算法的初始化向量
     /// </summary>

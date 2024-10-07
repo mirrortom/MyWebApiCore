@@ -1,4 +1,4 @@
-﻿namespace MyWebApi.core;
+﻿namespace MyWebApi.test;
 
 /*
  * 单独建立这个返回值类,可以从API类传递给业务处理类,便于由业务处理类设置返回消息和代码.

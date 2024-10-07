@@ -8,10 +8,10 @@ namespace MyWebApi.test;
 /// </summary>
 internal class AuthDemoAttribute : AUTHBaseAttribute
 {
-    internal override bool Authenticate(HttpContext context, UserAuth user)
+    internal override bool Authenticate(HttpContext context)
     {
-        // 取得token: string token = context.Request.Headers["Auth"].ToString();
+        // 取得token
         string token = context.Request.Headers["Auth"];
-        return TokenDemo.Check(token, user);
+        return TokenDemo.Check(TokenDemo.TokenToUser(token));
     }
 }

@@ -1,7 +1,7 @@
-﻿namespace MyWebApi.core;
+﻿namespace MyWebApi.test;
 
 /// <summary>
-/// 登录者信息,可继承此类
+/// 登录者信息
 /// </summary>
 public class UserAuth
 {
@@ -22,7 +22,7 @@ public class UserAuth
     /// </summary>
     public string RName { get; set; }
     /// <summary>
-    /// 过期时间
+    /// 过期时间 生成时间加上有效期(分钟),转为unix时间戳(总秒数)
     /// </summary>
     public long Expire { get; set; }
     /// <summary>
@@ -32,9 +32,9 @@ public class UserAuth
     /// <summary>
     /// 远端IP地址
     /// </summary>
-    public string Ip{ get; set; }
+    public string Ip { get; set; }
     /// <summary>
     /// 远端口号
     /// </summary>
-    public string Port{ get; set; }
+    public string Port { get; set; }
 }

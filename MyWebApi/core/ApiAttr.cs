@@ -34,7 +34,7 @@ internal class AUTHBaseAttribute : WebApiBaseAttribute
     /// <para>判断解析token,检查登录者信息,按需重写本方法</para>
     /// </summary>
     /// <returns></returns>
-    internal virtual bool Authenticate(HttpContext context, UserAuth user) => true;
+    internal virtual bool Authenticate(HttpContext context) => true;
 }
 
 #endregion

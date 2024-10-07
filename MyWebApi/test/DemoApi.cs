@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using MyWebApi.core;
+using MyWebApi.test;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-
-using MyWebApi.core;
-using MyWebApi.test;
-using Microsoft.VisualBasic;
 
 namespace MyWebApi;
 
@@ -75,7 +73,8 @@ internal class DemoApi : ApiBase
     [AuthDemo]
     public async Task auth()
     {
-        await this.Json(this.User);
+        var srv = WrapContext.NewSrv<Srv1Demo>(this.HttpContext);
+        await this.Json(srv.User);
     }
 
     // 获取token
@@ -179,8 +178,12 @@ internal class DemoApi : ApiBase
     [HTTPGET]
     public async Task srv()
     {
-        // 获取服务
-        var srv = WrapContext.NewSrv<Srv1Demo>(this.User, this.ResultCode);
-        await this.JsonResult(200, srv.info());
+        // WrapContext,请求处理服务类.
+        // 请求到达后,为了处理请求,设计了一个上下文类WrapContext,里面包含常用的数据.
+        // 比如:请求者信息,错误代码,缓存,数据操作接口等.
+        // 除了这些公用的数据,每个api处理时也会用到特定数据.所以使用时,继承WrapContext类.
+        // 然后重写init方法,实现特定数据.
+        var srv = WrapContext.NewSrv<Srv1Demo>(this.HttpContext);
+        await this.Json(new { errcode = 200, ermsg = srv.info() });
     }
 }

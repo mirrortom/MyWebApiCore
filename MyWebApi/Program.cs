@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -53,8 +51,6 @@ hostBuilder.ConfigureServices((IServiceCollection services) =>
 {
     // 跨域服务(https://learn.microsoft.com/zh-cn/aspnet/core/security/cors?view=aspnetcore-7.0)
     services.AddCors();
-    // MemoryCache内存缓存工具.
-    services.AddMemoryCache();
 
     // 获取服务器信息,F5测试时会在控制台打印.主要用于测试
 #if DEBUG
@@ -81,8 +77,6 @@ hostBuilder.ConfigureServices((IServiceCollection services) =>
 //hostBuilder.UseWindowsService();
 // 启动
 IHost host = hostBuilder.Build();
-// 获取缓存对象
-WrapContext.MemoryCache = host.Services.GetRequiredService<IMemoryCache>();
 // Run执行后,程序会在这里监听阻塞,run()后面的语句不会执行,直到监听程序结束后才执行.
 host.Run();
 

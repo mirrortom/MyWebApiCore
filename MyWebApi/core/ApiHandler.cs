@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MyWebApi.core;
 
-// 自定义中间件
+// url解析中间件,异常处理中间件
 internal class ApiHandler
 {
     /// <summary>
@@ -63,15 +63,15 @@ internal class ApiHandler
             return ApiHandler.ErrorEnd(context, 5006, $"No method found,overload not match![{apiType.FullName}.{url.apiMethod}]");
         }
 
-        // 实例化类,设定数据
-        ApiBase workapi = (ApiBase)Activator.CreateInstance(apiType, true);
-        workapi.SetHttpContext(context);
-
         // 进行权限检查(对于贴有[AUTH]的类和方法)
-        if (!ApiAuthCheck(context, apiMInfo.method, apiType, workapi))
+        if (!ApiAuthCheck(context, apiMInfo.method, apiType))
         {
             return ApiHandler.ErrorEnd(context, 5007, $"Access Denied,method or class![{apiType.FullName}.{url.apiMethod}]");
         }
+
+        // 实例化类,设定数据
+        ApiBase workapi = (ApiBase)Activator.CreateInstance(apiType, true);
+        workapi.SetHttpContext(context);
 
         // UrlMapMethodMW需要返回是Task类型,所以Invoke方法包装为一个Task返回.框架会执行.
         // 不可以将webapiMethod再放到一个Task里,然后返回这个Task,否则就是在多个线程里了.
@@ -252,19 +252,19 @@ internal class ApiHandler
     /// <param name="webapiMethod"></param>
     /// <param name="webapiType"></param>
     /// <returns></returns>
-    private static bool ApiAuthCheck(HttpContext context, MethodInfo webapiMethod, Type webapiType, ApiBase webapiInstance)
+    private static bool ApiAuthCheck(HttpContext context, MethodInfo webapiMethod, Type webapiType)
     {
         // 如果类上贴了[AUTH],类里面所有方法都放行或者拒绝,无需再一个个贴.
         if (Attribute.IsDefined(webapiType, typeof(AUTHBaseAttribute)))
         {
             var auth = webapiType.GetCustomAttribute<AUTHBaseAttribute>(false);
-            return auth.Authenticate(context, webapiInstance.User);
+            return auth.Authenticate(context);
         }
         // 只在方法上贴特性,验证只对单个方法
         if (Attribute.IsDefined(webapiMethod, typeof(AUTHBaseAttribute)))
         {
             var auth = webapiMethod.GetCustomAttribute<AUTHBaseAttribute>(false);
-            return auth.Authenticate(context, webapiInstance.User);
+            return auth.Authenticate(context);
         }
         return true;
     }

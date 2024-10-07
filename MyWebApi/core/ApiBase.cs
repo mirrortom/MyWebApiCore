@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using MyWebApi.core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -19,9 +18,7 @@ public class ApiBase
 {
     public ApiBase()
     {
-        // 需要在构造函数里初始化,否则继承类的构造函数里无法使用
-        this.User = new();
-        this.ResultCode = new();
+
     }
 
     #region 请求上下文对象及其它工具属性
@@ -51,16 +48,6 @@ public class ApiBase
     /// 获取有关单个 HTTP 请求的 HTTP 特定的信息.(可直接使用其它便利属性),由ApiHandler的URL中间件设定
     /// </summary>
     protected HttpContext HttpContext { get; private set; }
-
-    /// <summary>
-    /// 登录者标识信息
-    /// </summary>
-    internal readonly UserAuth User;
-
-    /// <summary>
-    /// 返回码
-    /// </summary>
-    internal readonly ReturnCode ResultCode;
 
     #endregion 请求上下文对象及其它工具属性
 
@@ -187,34 +174,6 @@ public class ApiBase
         string jsonstr = obj.GetType() == typeof(string)
             ? obj.ToString() : JsonConvert.SerializeObject(obj);
         return this.Response.WriteAsync(jsonstr);
-    }
-
-    /// <summary>
-    /// 返回一个json结果,最少含有键errcode,可能含有errmsg,list,item
-    /// 如果errcode或者errmsg参数缺少,将从ReturnCode对象取值ErrCode或者ErrMsg
-    /// </summary>
-    /// <param name="errcode">状态码</param>
-    /// <param name="errmsg">信息</param>
-    /// <param name="list">列表数据</param>
-    /// <param name="item">单个数据</param>
-    /// <returns></returns>
-    protected Task JsonResult(int errcode = -1, string errmsg = null, IEnumerable<object> list = null, object item = null)
-    {
-        Dictionary<string, object> dic = new();
-        dic.Add("errcode", errcode == -1 ? this.ResultCode.ErrCode : errcode);
-        if (!string.IsNullOrWhiteSpace(errmsg))
-            dic.Add("errmsg", errmsg);
-        else if (!string.IsNullOrWhiteSpace(this.ResultCode.ErrMsg))
-            dic.Add("errmsg", this.ResultCode.ErrMsg);
-        if (list != null)
-        {
-            dic.Add("list", list);
-        }
-        if (item != null)
-        {
-            dic.Add("item", item);
-        }
-        return this.Json(dic);
     }
 
     /// <summary>
