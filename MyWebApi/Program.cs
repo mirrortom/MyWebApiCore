@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-using MyWebApi.core;
+﻿using MyWebApi.core;
 using MyWebApi.test;
 using cfg = MyWebApi.core.Config;
 
@@ -25,8 +20,12 @@ var webapp = (IApplicationBuilder app) =>
 #endif
 
     // 默认文档,静态文件 (系统中间件)
-    app.UseDefaultFiles()
-       .UseStaticFiles();
+    if (cfg.EnableStatic)
+    {
+        if (cfg.DefaultDocOptions != null)
+            app.UseDefaultFiles(cfg.DefaultDocOptions);
+        app.UseStaticFiles();
+    }
 
     // 提供wwwroot以外的其它虚拟目录(静态文件的) (系统中间件)
     if (cfg.VirtualDirsOptions != null)
@@ -36,7 +35,7 @@ var webapp = (IApplicationBuilder app) =>
     }
 
     // 跨域策略 (系统中间件)
-    app.UseCors(cfg.CorsConfigBuild);
+    app.UseCors(Config.CorsConfigBuild);
 
     // url映射到类的方法
     app.Run(ApiHandler.UrlMapMethodMW);

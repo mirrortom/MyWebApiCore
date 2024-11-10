@@ -16,11 +16,6 @@ namespace MyWebApi.core;
 /// </summary>
 public class ApiBase
 {
-    public ApiBase()
-    {
-
-    }
-
     #region 请求上下文对象及其它工具属性
 
     /// <summary>
@@ -59,7 +54,7 @@ public class ApiBase
     /// <returns></returns>
     protected virtual Dictionary<string, object> ParaDictGET()
     {
-        Dictionary<string, object> dict = new();
+        Dictionary<string, object> dict = [];
         foreach (string key in this.Request.Query.Keys)
         {
             var values = this.Request.Query[key];

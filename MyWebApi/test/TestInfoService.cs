@@ -1,11 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
+﻿using System.Text;
+using cfg = MyWebApi.core.Config;
 namespace MyWebApi.test;
 
 public class TestInfoService : IHostedService
@@ -22,13 +16,26 @@ public class TestInfoService : IHostedService
     public Dictionary<string, string> GetInfo()
     {
         string urls = Configuration.GetValue<string>(WebHostDefaults.ServerUrlsKey);
+        StringBuilder virDirsInfo = new();
+        if (cfg.VirtualDirsOptions != null && cfg.VirtualDirsOptions.Count > 0)
+        {
+            foreach (var item in cfg.VirtualDirsOptions)
+            {
+                string fsDir = ((Microsoft.Extensions.FileProviders.PhysicalFileProvider)item.FileProvider).Root;
+                string str = $"虚拟路径{item.RequestPath}=>本地路径:{fsDir}{Environment.NewLine}";
+                virDirsInfo.Append(str);
+            }
+        }
         return new Dictionary<string, string> {
             { "名字 AppName", WebHostEnv.ApplicationName },
             { "程序运行目录 AppContext.BaseDirectory", AppContext.BaseDirectory },
+            {"web服务器监听 server listen",urls },
             {"内容根目录 ContentRootPath",WebHostEnv.ContentRootPath },
             {"web服务器 server","Kestrel" },
+            {"web静态文件",cfg.EnableStatic?"启用":"禁用" },
             {"web根目录 WebRootPath",WebHostEnv.WebRootPath },
-            {"web服务器监听 server listen",urls },
+            {"web默认文档 DefaultFileNames",string.Join(',',cfg.DefaultDocOptions?.DefaultFileNames??[])},
+            {"web虚拟目录 VirtualDirs",virDirsInfo.ToString() },
         };
     }
 

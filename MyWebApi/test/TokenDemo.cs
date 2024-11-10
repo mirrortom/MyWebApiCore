@@ -7,7 +7,7 @@ namespace MyWebApi.test;
 public class TokenDemo
 {
     /// <summary>
-    /// 密钥16位
+    /// 密钥16位,用于实际项目时修改
     /// </summary>
     private const string Key16 = "nq1#*9!3*1285v23";
 

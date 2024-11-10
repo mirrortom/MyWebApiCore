@@ -96,9 +96,9 @@
       <p>传body参数</p>
       <p>参数: {name:"mywebapi",info:".net core版本"} </p>
       <div>
-        json<textarea id="form_num2" style="width:300px;height:50px">{name:"mywebapi",info:".net 版本8.0"}</textarea>
+        json<textarea id="form_body" style="width:300px;height:50px">{name:"mywebapi",info:".net 版本8.0"}</textarea>
       </div>
-      <button onclick="demoRequestBody('/demo/parabody')">提交</button>
+      <button onclick="demoRequestBody('/demo/parabody','form_body')">提交</button>
       <br />
 
       <p>6. /demo/file</p>
@@ -191,10 +191,10 @@
       }
     }
     // request 5 body para
-    async function demoRequestBody(path) {
-      // body para initcfg (application-plain)
-      let cfg = { headers: new Headers({ "Content-Type": "application-json" }) };
-      para = document.getElementById('form_num2').value;
+    async function demoRequestBody(path, formId) {
+      // body para initcfg (application/plain)
+      let cfg = { headers: new Headers({ "Content-Type": "application/json" }) };
+      let para = document.getElementById(formId).value;
       try {
         let result = await postAsync(url + path, para, cfg, 'text');
         showMsg(result);

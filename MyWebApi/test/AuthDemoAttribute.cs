@@ -4,7 +4,10 @@ using MyWebApi.core;
 namespace MyWebApi.test;
 
 /// <summary>
-/// 验证授权,这个一般实现就是检查token,如果有效,生成一个对象保留请求者信息.
+/// 验证授权
+/// 1.继承AUTHBase特性,重写其Authenticate方法
+/// 2.重写方法里,分析请求数据里带的token,返回是否通过
+/// 3.使用时,将特性贴在API类或者方法上
 /// </summary>
 internal class AuthDemoAttribute : AUTHBaseAttribute
 {
