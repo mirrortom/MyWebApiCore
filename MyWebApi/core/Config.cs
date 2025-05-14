@@ -13,11 +13,11 @@ internal class Config
     /// </summary>
     internal static bool EnableStatic { get; private set; }
     // 监听地址
-    internal static string[] Urls { get; private set; }
+    internal static string[]? Urls { get; private set; }
     // 默认文档配置项
-    internal static DefaultFilesOptions DefaultDocOptions { get; private set; }
+    internal static DefaultFilesOptions? DefaultDocOptions { get; private set; }
     // 虚拟目录
-    internal static List<StaticFileOptions> VirtualDirsOptions { get; private set; }
+    internal static List<StaticFileOptions>? VirtualDirsOptions { get; private set; }
 
     /// <summary>
     /// 加载配置

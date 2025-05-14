@@ -4,6 +4,8 @@ using cfg = MyWebApi.core.Config;
 
 // 加载配置选项
 cfg.Load();
+// 路由初始化
+RouteMap.Init();
 
 // webapp 设置
 var webapp = (IApplicationBuilder app) =>
@@ -37,8 +39,8 @@ var webapp = (IApplicationBuilder app) =>
     // 跨域策略 (系统中间件)
     app.UseCors(Config.CorsConfigBuild);
 
-    // url映射到类的方法
-    app.Run(ApiHandler.UrlMapMethodMW);
+    // 查找并执行处理方法
+    app.Run(ApiHandler.ProcReqMW);
 };
 
 // 通用主机:(https://learn.microsoft.com/zh-cn/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-7.0)
@@ -77,6 +79,7 @@ hostBuilder.ConfigureServices((IServiceCollection services) =>
 // 启动
 IHost host = hostBuilder.Build();
 // Run执行后,程序会在这里监听阻塞,run()后面的语句不会执行,直到监听程序结束后才执行.
-host.Run();
+// host.Run();
+await host.RunAsync();
 
 //Console.WriteLine("你按了ctrl + c, kestrel服务结束!程序结束.");

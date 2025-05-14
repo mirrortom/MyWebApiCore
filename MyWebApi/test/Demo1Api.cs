@@ -19,6 +19,7 @@ internal class Demo1Api : ApiBase
         await this.Json(res);
     }
 
+    
     [HTTPPOST]
     public async Task index(int type)
     {
@@ -30,6 +31,7 @@ internal class Demo1Api : ApiBase
         await this.Json(res);
     }
 
+    [ROUTE("api/demo1/indexReLoad")]
     [HTTPGET]
     public async Task index(int type,string title)
     {

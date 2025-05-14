@@ -52,9 +52,9 @@ public class ApiBase
     /// 无参数时返回空字典
     /// </summary>
     /// <returns></returns>
-    protected virtual Dictionary<string, object> ParaDictGET()
+    protected virtual Dictionary<string, string> ParaDictGET()
     {
-        Dictionary<string, object> dict = [];
+        Dictionary<string, string> dict = [];
         foreach (string key in this.Request.Query.Keys)
         {
             var values = this.Request.Query[key];
@@ -100,7 +100,7 @@ public class ApiBase
     {
         Dictionary<string, object> dict = [];
         var form = await this.Request.ReadFormAsync();
-        foreach (string key in form.Keys)
+        foreach (var key in form.Keys)
         {
             var values = form[key];
             dict.Add(key, values.Count > 1 ? values : values.FirstOrDefault());
@@ -142,10 +142,10 @@ public class ApiBase
     /// <para>如果参数太大,会占用很多内存,方法是先读取到内存中的.</para>
     /// <para>没有取到时返回string.Empty</para>
     /// </summary>
-    protected virtual Task<string> ParaStream()
+    protected virtual async Task<string> ParaStream()
     {
         // 可能为string.Empty
-        return new StreamReader(this.Request.Body).ReadToEndAsync();
+        return await new StreamReader(this.Request.Body).ReadToEndAsync();
     }
 
     #endregion 便利方法,将请求参数转为对象
@@ -163,32 +163,34 @@ public class ApiBase
     /// 返回JSON格式数据.obj如果是字符串,则视为json格式字符串直接返回.
     /// </summary>
     /// <param name="obj"></param>
-    protected Task Json(object obj)
+    protected async Task Json(object obj)
     {
         this.Response.ContentType = "application/json;charset=utf-8";
-        string jsonstr = obj.GetType() == typeof(string)
-            ? obj.ToString() : JsonConvert.SerializeObject(obj);
-        return this.Response.WriteAsync(jsonstr);
+        if (!(obj is string s))
+        {
+            s = JsonConvert.SerializeObject(obj);
+        }
+        await this.Response.WriteAsync(s);
     }
 
     /// <summary>
     /// 返回一段HTML格式文本
     /// </summary>
     /// <param name="html"></param>
-    protected Task Html(string html)
+    protected async Task Html(string html)
     {
         this.Response.ContentType = "text/html;charset=utf-8";
-        return this.Response.WriteAsync(html);
+        await this.Response.WriteAsync(html);
     }
 
     /// <summary>
     /// 返回纯文本格式字符串
     /// </summary>
     /// <param name="text"></param>
-    protected Task Text(string text)
+    protected async Task Text(string text)
     {
         this.Response.ContentType = "text/plain;charset=utf-8";
-        return this.Response.WriteAsync(text);
+        await this.Response.WriteAsync(text);
     }
 
     /// <summary>
@@ -196,10 +198,10 @@ public class ApiBase
     /// </summary>
     /// <param name="fileName"></param>
     /// <param name="contentType"></param>
-    protected Task File(string fileName, string contentType)
+    protected async Task File(string fileName, string contentType)
     {
         this.Response.ContentType = $"{contentType};charset=utf-8";
-        return this.Response.SendFileAsync(fileName);
+        await this.Response.SendFileAsync(fileName);
     }
 
     /// <summary>
@@ -208,11 +210,11 @@ public class ApiBase
     /// <param name="fileName"></param>
     /// <param name="contentType"></param>
     /// <param name="fileDownloadName"></param>
-    protected Task File(string fileName, string contentType, string fileDownloadName)
+    protected async Task File(string fileName, string contentType, string fileDownloadName)
     {
         this.Response.ContentType = $"{contentType};charset=utf-8";
-        this.Response.Headers.Add("Content-disposition", $"attachment;filename={HttpUtility.UrlEncode(fileDownloadName)}");
-        return this.Response.SendFileAsync(fileName);
+        this.Response.Headers.Append("Content-disposition", $"attachment;filename={HttpUtility.UrlEncode(fileDownloadName)}");
+        await this.Response.SendFileAsync(fileName);
     }
 
     #endregion response返回几种结果形式

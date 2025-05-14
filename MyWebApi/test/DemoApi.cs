@@ -12,10 +12,9 @@ internal class DemoApi : ApiBase
 {
     [HTTPPOST]
     [HTTPGET]
-    public async Task getinfo()
+    public async Task Getinfo()
     {
-        var testinfo = this.HttpContext.RequestServices.GetService(typeof(TestInfoService)) as TestInfoService;
-        if (testinfo != null)
+        if (this.HttpContext.RequestServices.GetService(typeof(TestInfoService)) is TestInfoService testinfo)
         {
             var dict = testinfo.GetInfo();
             await this.Json(dict);
@@ -29,7 +28,7 @@ internal class DemoApi : ApiBase
     // get参数
     [HTTPPOST]
     [HTTPGET]
-    public async Task getpara()
+    public async Task Getpara()
     {
         dynamic query = this.ParaGET();
         await this.Json(query);
@@ -38,7 +37,7 @@ internal class DemoApi : ApiBase
     // get类型参数
     [HTTPPOST]
     [HTTPGET]
-    public async Task getParaType()
+    public async Task GetParaType()
     {
         var query = this.ParaGET<DemoEntity>();
         await this.Json(query);
@@ -46,7 +45,7 @@ internal class DemoApi : ApiBase
 
     // 表单参数
     [HTTPPOST]
-    public async Task formpara()
+    public async Task Formpara()
     {
         dynamic query = await this.ParaForm();
         await this.Json(query);
@@ -54,7 +53,7 @@ internal class DemoApi : ApiBase
 
     // 表单类型参数
     [HTTPPOST]
-    public async Task formParaType(int type)
+    public async Task FormParaType(int type)
     {
         var query = await this.ParaForm<DemoEntity>();
         await this.Json(query);
@@ -62,7 +61,7 @@ internal class DemoApi : ApiBase
 
     // body参数
     [HTTPPOST]
-    public async Task parabody()
+    public async Task Parabody()
     {
         var para = await this.ParaStream();
         await this.Text(para);
@@ -70,8 +69,8 @@ internal class DemoApi : ApiBase
 
     // 需要权限
     [HTTPPOST]
-    [AuthDemo]
-    public async Task auth()
+    [AuthDemo(Id = 1)]
+    public async Task Auth()
     {
         var srv = WrapContext.NewSrv<Srv1Demo>(this.HttpContext);
         await this.Json(srv.User);
@@ -79,7 +78,7 @@ internal class DemoApi : ApiBase
 
     // 获取token
     [HTTPPOST]
-    public async Task gettoken()
+    public async Task Gettoken()
     {
         string token = TokenDemo.Create();
         await this.Text(token);
@@ -88,15 +87,15 @@ internal class DemoApi : ApiBase
     // 丢出异常
     [HTTPGET]
     [HTTPPOST]
-    public async Task throwcatch()
+    public Task Throwcatch()
     {
         throw new Exception("server was throw a exception!");
-        await Task.CompletedTask;
+        //return Task.CompletedTask;
     }
 
     // 提供下载文件
     [HTTPPOST]
-    public async Task getfile()
+    public async Task Getfile()
     {
         string file = AppContext.BaseDirectory + "/wwwroot/index.html";
         await this.File(file, "application/octet-stream", "index.html");
@@ -104,7 +103,7 @@ internal class DemoApi : ApiBase
 
     // 接收上传文件
     [HTTPPOST]
-    public async Task uploadfile()
+    public async Task Uploadfile()
     {
         if (this.Request.Form.Files.Count == 0)
         {
@@ -149,7 +148,7 @@ internal class DemoApi : ApiBase
     // 返回纯文本
     [HTTPPOST]
     [HTTPGET]
-    public async Task gettext()
+    public async Task Gettext()
     {
         string txt = "hello world. I trying return a plain!";
         await this.Text(txt);
@@ -158,7 +157,7 @@ internal class DemoApi : ApiBase
     // 读取或者写入缓存
     [HTTPPOST]
     [HTTPGET]
-    public async Task cache()
+    public async Task Cache()
     {
         string key = "last-request-time";
         // 取出上次请求时间
@@ -176,7 +175,7 @@ internal class DemoApi : ApiBase
     // 使用服务类
     [HTTPPOST]
     [HTTPGET]
-    public async Task srv()
+    public async Task Srv()
     {
         // WrapContext,请求处理服务类.
         // 请求到达后,为了处理请求,设计了一个上下文类WrapContext,里面包含常用的数据.
