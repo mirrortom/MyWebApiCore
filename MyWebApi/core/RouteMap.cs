@@ -4,10 +4,9 @@ using System.Reflection;
 
 namespace MyWebApi.core;
 
-/*
- * 自定义路由,映射url和处理方法
- */
-
+/// <summary>
+/// 路由初始化,映射url和处理方法
+/// </summary>
 internal class RouteMap
 {
     /// <summary>
@@ -28,11 +27,11 @@ internal class RouteMap
         // 1.查找所有继承了ApiBase的类
         // 2.找出类里所有贴有httpget或者httppost或者两者都有的方法
         // 3.找出方法上贴有的验证特性
-        var classList = Assembly.GetExecutingAssembly()
+        var classTypeList = Assembly.GetExecutingAssembly()
                    .GetTypes()
                    .Where(t => t.BaseType == typeof(ApiBase));
 
-        foreach (var t in classList)
+        foreach (var t in classTypeList)
         {
             var methods = t.GetMethods();
             foreach (var m in t.GetMethods())
@@ -68,6 +67,12 @@ internal class RouteMap
         }
     }
 
+    /// <summary>
+    /// webapi类和方法的数据,类的类型/方法的特性/方法对象等
+    /// </summary>
+    /// <param name="t"></param>
+    /// <param name="m"></param>
+    /// <returns></returns>
     private static RouteAction NewRouteAction(Type t, MethodInfo m)
     {
         return new()

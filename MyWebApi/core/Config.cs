@@ -28,7 +28,6 @@ internal class Config
         IConfiguration set = new ConfigurationBuilder()
             .AddJsonFile("settings.json")
             .Build();
-        var cfg = new Config();
 
         // 是否开启静态文件
         Config.EnableStatic = set.GetValue("enableStatic", 0) == 1;
