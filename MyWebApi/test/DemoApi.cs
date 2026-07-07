@@ -80,7 +80,7 @@ internal class DemoApi : ApiBase
     [HTTPPOST]
     public async Task Gettoken()
     {
-        string token = TokenDemo.Create();
+        string token = TokenDemo.Create("1", "clay", 1, "admin", "0");
         await this.Text(token);
     }
 

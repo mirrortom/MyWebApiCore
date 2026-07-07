@@ -39,7 +39,7 @@ internal class AUTHBaseAttribute : Attribute
     /// <returns></returns>
     internal virtual bool Authenticate(HttpContext context) => true;
     /// <summary>
-    /// 方法唯一标识
+    /// 方法唯一标识 -1=不需要权限
     /// </summary>
-    public int Id { get; set; }
+    public int Id { get; set; } = -1;
 }

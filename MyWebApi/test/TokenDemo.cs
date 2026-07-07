@@ -1,83 +1,69 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Linq;
 using System;
+using System.ServiceProcess;
 
 namespace MyWebApi.test;
-
+/// <summary>
+/// 用户管理方案:1.登入后发放一个GUID标志,用户信息放到内存缓存,2小时过期时间.
+/// 2.浏览器请求时带上GUID,服务器检查GUID,判断用户,执行任务.
+/// </summary>
 public class TokenDemo
 {
-    /// <summary>
-    /// 密钥16位,用于实际项目时修改
-    /// </summary>
-    private const string Key16 = "nq1#*9!3*1285v23";
+    private static IMemoryCache Cache { get; } = WrapContext.MemoryCache;
 
     /// <summary>
-    /// 建立新的token(自定义的token是一个合规的json字符串,不是jwt格式的)
+    /// 新的登录用户与GUID关系映射
     /// maxTimeSecs:有效时长,单位是秒.默认6000(100分钟)
     /// </summary>
     /// <returns></returns>
-    public static string Create(string uid = "0", string uname = "mirror", string rid = "0", string rname = "admin", int maxTimeSecs = 6000)
+    public static string Create(string uid, string uname, int rid, string rname, string powid, int maxTimeSecs = 6000)
     {
         // token规则:uid,uname,rid,rname,exprie,sign这6个常用信息组成(这些信息用参数传来)
-        dynamic u = new JObject();
-        u.UId = uid;
-        u.UName = uname;
-        u.RId = rid;
-        u.RName = rname;
-        // 有效期为生成时刻起,加上100分钟
-        u.Expire = DateTimeOffset.Now.AddMinutes(maxTimeSecs).ToUnixTimeSeconds();
+        var u = new UserAuth
+        {
+            Uuid = Guid.NewGuid().ToString("N"),
+            UId = uid,
+            UName = uname,
+            RId = rid,
+            RName = rname,
+            PowId = powid,
+            // 有效期为生成时刻起,加上100分钟
+            ExpireDT = DateTimeOffset.Now.AddMinutes(maxTimeSecs),
+        };
 
-        // 签名规则:上面5个信息按顺序合并字符串,做sha140摘要
-        string signStr = $"{u.UId}{u.UName}{u.RId}{u.RName}{u.Expire}";
-
-        u.Sign = SecurityHelp.Hex40_SHA1(signStr);
-
-        // 生成json字符串,加密返回
-        string jsonStr = SerializeHelp.ObjectToJSON(u);
-
-        return SecurityHelp.PlainToCipherHex_Aes(jsonStr, Key16);
+        // 加入缓存
+        Cache.Set<UserAuth>(u.Uuid, u, u.ExpireDT);
+        return u.Uuid;
     }
 
     /// <summary>
-    /// 验证token签名
+    /// 验证api调用权限
     /// </summary>
     /// <param name="token"></param>
+    /// <param name="apiId">apiId</param>
     /// <returns></returns>
-    public static bool Check(UserAuth u)
+    public static bool Check(string token, int apiId)
     {
-        // 对象化
+        // 检查用户凭证
+        if (string.IsNullOrEmpty(token)) return false;
+        // 用uuid为健查询缓存
+        if (false == Cache.TryGetValue<UserAuth>(token, out var u))
+            return false;
         if (u == null) return false;
 
-        // check 过期时间检查
-        if (u.Expire < DateTimeOffset.Now.ToUnixTimeSeconds())
+        // 过期时间检查(这一步可以不必,因为缓存也设置了过期时间,过期后u是null了)
+        if (u.ExpireDT < DateTimeOffset.Now)
             return false;
 
-        // 验证签名
-        string signStr = $"{u.UId}{u.UName}{u.RId}{u.RName}{u.Expire}";
-        string sign = SecurityHelp.Hex40_SHA1(signStr);
-        if (sign != u.Sign)
-            return false;
-        return true;
-    }
-
-    /// <summary>
-    /// 将token转为用户对象(不验证签名).失败返回null.
-    /// </summary>
-    /// <returns></returns>
-    public static UserAuth TokenToUser(string token)
-    {
-        if (string.IsNullOrWhiteSpace(token))
-            return null;
-
-        // 解密得到json字符串
-        string tokenStr = SecurityHelp.CipherHexToPlain_Aes(token, Key16);
-        if (string.IsNullOrWhiteSpace(tokenStr))
-            return null;
-
-        // 对象化
-        var u = SerializeHelp.JsonToObject<UserAuth>(tokenStr);
-        if (u == null) return null;
-
-        return u;
+        // 是否有权限执行该方法.特别情况,apiId==-1不需要权限.powid=0为用户最高权限
+        if (apiId == -1 || u.PowId == "0")
+        {
+            return true;
+        }
+        // 用户权限字符串包含该方法ID,就有权执行
+        string[] powidArr = u.PowId.Split('|');
+        return powidArr.IndexOf(apiId.ToString()) != -1;
     }
 }

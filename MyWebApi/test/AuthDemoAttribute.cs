@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MyWebApi.core;
+using System.Diagnostics;
 
 namespace MyWebApi.test;
 
@@ -14,10 +15,10 @@ internal class AuthDemoAttribute : AUTHBaseAttribute
     internal override bool Authenticate(HttpContext context)
     {
         // 取得token
-        string? token = context.Request.Headers["Auth"];
+        var token = context.Request.Headers["Auth"];
+        if (string.IsNullOrWhiteSpace(token))
+            return false;
         // 验证token,验证用户API执行权限
-        return !string.IsNullOrEmpty(token)
-        && TokenDemo.Check(TokenDemo.TokenToUser(token))
-        && this.Id == 1;
+        return TokenDemo.Check(token[0]??"", this.Id);
     }
 }
