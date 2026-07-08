@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
-using MyWebApi.test;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace MyWebApi.core;
 
@@ -114,64 +112,63 @@ internal class RouteMap
 
         return routeName;
     }
+}
+/// <summary>
+/// 路由请求处理的类和方法信息
+/// </summary>
+internal class RouteAction
+{
+    /// <summary>
+    /// api对象类型
+    /// </summary>
+    public Type InstanceType { get; set; }
 
     /// <summary>
-    /// 路由请求处理的类和方法信息
+    /// api方法信息
     /// </summary>
-    internal class RouteAction
+    public MethodInfo ActionInfo { get; internal set; }
+
+    /// <summary>
+    /// true:支持httpget方法
+    /// </summary>
+    public bool IsGet { get; set; }
+
+    /// <summary>
+    /// true:支持httppost方法
+    /// </summary>
+    public bool IsPost { get; set; }
+
+    /// <summary>
+    /// 验证特性
+    /// </summary>
+    public AUTHBaseAttribute? AuthAttr { get; set; }
+
+    /// <summary>
+    /// 路由特性
+    /// </summary>
+    public ROUTEAttribute? RouteAttr { get; set; }
+
+    /// <summary>
+    /// 检查方法参数,返回参数类型的默认值的对象数组
+    /// </summary>
+    /// <returns></returns>
+    public object[] GetParasForInvoke()
     {
-        /// <summary>
-        /// api对象类型
-        /// </summary>
-        public Type InstanceType { get; set; }
-
-        /// <summary>
-        /// api方法信息
-        /// </summary>
-        public MethodInfo ActionInfo { get; internal set; }
-
-        /// <summary>
-        /// true:支持httpget方法
-        /// </summary>
-        public bool IsGet { get; set; }
-
-        /// <summary>
-        /// true:支持httppost方法
-        /// </summary>
-        public bool IsPost { get; set; }
-
-        /// <summary>
-        /// 验证特性
-        /// </summary>
-        public AUTHBaseAttribute? AuthAttr { get; set; }
-
-        /// <summary>
-        /// 路由特性
-        /// </summary>
-        public ROUTEAttribute? RouteAttr { get; set; }
-
-        /// <summary>
-        /// 检查方法参数,返回参数类型的默认值的对象数组
-        /// </summary>
-        /// <returns></returns>
-        public object[] GetParasForInvoke()
+        object[] paras = null;
+        var pArr = this.ActionInfo.GetParameters();
+        if (pArr.Length > 0)
         {
-            object[] paras = null;
-            var pArr = this.ActionInfo.GetParameters();
-            if (pArr.Length > 0)
+            paras = new object[pArr.Length];
+            for (int i = 0; i < pArr.Length; i++)
             {
-                paras = new object[pArr.Length];
-                for (int i = 0; i < pArr.Length; i++)
-                {
-                    var pinfo = pArr[i];
-                    // 参数如有默认值,不再赋值
-                    if (pinfo.HasDefaultValue)
-                        continue;
-                    paras[i] = pinfo.ParameterType.IsValueType ?
-                    Activator.CreateInstance(pinfo.ParameterType) : null;
-                }
+                var pinfo = pArr[i];
+                // 参数如有默认值,不再赋值
+                if (pinfo.HasDefaultValue)
+                    continue;
+                paras[i] = pinfo.ParameterType.IsValueType ?
+                Activator.CreateInstance(pinfo.ParameterType) : null;
             }
-            return paras;
         }
+        return paras;
     }
 }

@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-
-namespace MyWebApi.core;
+﻿namespace MyWebApi.core;
 
 /// <summary>
 /// 指定接受httpPOST方式请求

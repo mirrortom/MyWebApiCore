@@ -1,19 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Reflection;
-using System.Security.AccessControl;
-using System.Threading.Tasks;
-
-using static MyWebApi.core.RouteMap;
+﻿using static MyWebApi.core.RouteMap;
 
 namespace MyWebApi.core;
 

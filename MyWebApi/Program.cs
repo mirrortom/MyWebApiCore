@@ -37,7 +37,7 @@ var webapp = (IApplicationBuilder app) =>
     }
 
     // 跨域策略 (系统中间件)
-    app.UseCors(Config.CorsConfigBuild);
+    app.UseCors(cfg.CorsConfigBuild);
 
     // 查找并执行处理方法
     app.Run(ApiHandler.ProcReqMW);
